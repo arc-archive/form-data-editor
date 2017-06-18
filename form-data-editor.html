@@ -1,0 +1,316 @@
+<!--
+@license
+Copyright 2016 The Advanced REST client authors <arc@mulesoft.com>
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-input/paper-input-container.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../iron-input/iron-input.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../arc-icons/arc-icons.html">
+<link rel="import" href="../payload-parser-behavior/payload-parser-behavior.html">
+<link rel="import" href="../arc-polyfills/arc-polyfills.html">
+<!--
+`<form-data-editor>` An element to edit form data (x-www-form-urlencoded)
+
+### Example
+```
+<form-data-editor></form-data-editor>
+```
+
+### Styling
+`<form-data-editor>` provides the following custom properties and mixins for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--form-data-editor` | Mixin applied to the element | `{}`
+
+@group UI Elements
+@element form-data-editor
+@demo demo/index.html
+-->
+<dom-module id="form-data-editor">
+  <template>
+    <style>
+    :host {
+      display: block;
+
+      input::-webkit-input-placeholder {
+        color: var(--paper-input-container-color, --secondary-text-color);
+      }
+    }
+
+    .form-row {
+      @apply(--layout-horizontal);
+      @apply(--layout-flex);
+      @apply(--layout-center);
+    }
+
+    .param-name {
+      margin-right: 12px;
+    }
+
+    .param-value {
+      @apply(--layout-flex);
+    }
+
+    .encoder-buttons {
+      margin: 8px 0;
+    }
+
+    .add-param-button {
+      margin-top: 12px;
+      background-color: var(--form-data-editor-add-button-background-color, --primary-color);
+      color: var(--form-data-editor-add-button-color, --primary-background-color);
+
+      @apply(--action-button);
+    }
+
+    paper-icon-button {
+      color: var(--from-row-action-icon-color, var(--icon-button-color, rgba(0, 0, 0, 0.74)));
+      transition: color 0.2s linear;
+    }
+
+    paper-icon-button:hover {
+      color: var(--from-row-action-icon-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
+    }
+    </style>
+    <div class="encoder-buttons">
+      <paper-button title="Encodes payload to x-www-form-urlencoded data" on-tap="encodePaylod">encode payload</paper-button>
+      <paper-button title="Decodes payload to human readable form" on-tap="decodePaylod">decode payload</paper-button>
+    </div>
+    <section class="editor">
+      <template is="dom-repeat" items="{{model}}" on-dom-change="_onParamsRender">
+        <div class="form-row">
+          <paper-input-container class="param-name" no-label-float inline>
+            <input is="iron-input" type="text" value="{{item.name::input}}" placeholder="Param name"/>
+          </paper-input-container>
+          <paper-input-container class="param-value" no-label-float inline>
+            <input is="iron-input" type="text" value="{{item.value::input}}" placeholder="Param value" name="[[item.name]]"/>
+          </paper-input-container>
+          <span>
+            <paper-icon-button icon="arc:close" on-tap="_removeParam"></paper-icon-button>
+            <paper-tooltip animation-delay="200">Remove parameter</paper-tooltip>
+          </span>
+        </div>
+      </template>
+    </section>
+    <paper-button on-tap="add" class="add-param-button">Add form parameter</paper-button>
+  </template>
+  <script>
+  Polymer({
+    is: 'form-data-editor',
+
+    behaviors: [ArcBehaviors.PayloadParserBehavior],
+
+    /**
+     * Event fire when the value of the editor change.
+     * This event is not fired if `attrForOpened` is set and corresponding value is not set.
+     *
+     * @event payload-value-changed
+     * @param {String} value Current payload value.
+     */
+
+    properties: {
+      /**
+       * Generated form model for the value.
+       */
+      model: Array,
+      /**
+       * Generated message body from the form values.
+       */
+      value: {
+        type: String,
+        notify: true
+      },
+      /**
+       * An attribute name describing if the element is currently displayed.
+       * If set, the element will not compute values until the attribute becomes truly.
+       *
+       * This is helpful when this editor is used alongside other payload editors and only one
+       * at the time should perform a computation.
+       *
+       * Note that setting a property instead of attribute will not work. It must be an
+       * attribute.
+       */
+      attrForOpened: String,
+      /**
+       * If true it will automatically url-encode value after a change.
+       */
+      autoEncode: Boolean
+    },
+
+    observers: [
+      '_valueChanged(value)',
+      '_modelChanged(model.*)'
+    ],
+
+    get _propertyForOpened() {
+      if (!this.attrForOpened) {
+        return;
+      }
+      return Polymer.CaseMap.dashToCamelCase(this.attrForOpened);
+    },
+
+    get _openedValue() {
+      if (this._propertyForOpened) {
+        return this.hasAttribute(this._propertyForOpened);
+      }
+      return true;
+    },
+
+    attributeChanged: function(name) {
+      var prop = this._propertyForOpened;
+      if (prop && prop === name) {
+        if (this.getAttribute(name) !== null) {
+          this.updateValue();
+        }
+      }
+    },
+
+    /**
+     * Handler for value change.
+     * If the element is opened then it will update model.
+     */
+    _valueChanged: function(value) {
+      var isOpened = this._openedValue;
+      if (this.__internalChange || !isOpened) {
+        if (isOpened) {
+          this.fire('payload-value-changed', {
+            value: value
+          });
+        }
+        return;
+      }
+      this.updateModel(value);
+    },
+    /**
+     * Updated the `model` from current `value`.
+     */
+    updateModel: function(value) {
+      var arr = this.stringToArray(value);
+      if (this.autoEncode) {
+        arr = this.decodeUrlEncoded(arr);
+      }
+      this.set('model', arr);
+    },
+
+    /** Encode payload button press handler */
+    encodePaylod: function() {
+      if (!this._openedValue) {
+        // value is out of sync with model
+        return;
+      }
+      var value = this.encodeUrlEncoded(this.value);
+      this.__internalChange = true;
+      this.set('value', value);
+      this.__internalChange = false;
+      var arr = this.stringToArray(value);
+      this.set('model', arr);
+    },
+    /** Decode payload button press handler */
+    decodePaylod: function() {
+      if (!this._openedValue) {
+        // value is out of sync with model
+        return;
+      }
+      var value = this.decodeUrlEncoded(this.value);
+      this.__internalChange = true;
+      this.set('value', value);
+      this.__internalChange = false;
+      var arr = this.stringToArray(value);
+      this.set('model', arr);
+    },
+    /**
+     * Append empty parameter row.
+     *
+     * @param {?Object} item A predefined values for the model. It adds empty row id no values has
+     * been passed.
+     */
+    add: function(item) {
+      item = this._createModelItem(item);
+      if (!this.model) {
+        this.set('model', [item]);
+      } else {
+        this.push('model', item);
+      }
+    },
+    // Creates a model item from base object.
+    _createModelItem: function(item) {
+      item = item || {};
+      item.name = item.name || '';
+      item.value = item.value || '';
+      return item;
+    },
+
+    /**
+     * Focuses on the last line of the editor when it renders an item.
+     */
+    _onParamsRender: function() {
+      if (!this.root) {
+        return;
+      }
+      var row = Polymer.dom(this.root).querySelectorAll('.editor .form-row');
+      if (!row || !row.length) {
+        return;
+      }
+      row = row.pop();
+      try {
+        row.children[0].querySelector('input').focus();
+      } catch (e) {}
+    },
+
+    /** Remove element from the params form */
+    _removeParam: function(e) {
+      var index = this.$$('template[is="dom-repeat"]').indexForElement(e.target);
+      this.splice('model', index, 1);
+    },
+    // Handler for model change.
+    _modelChanged: function(record) {
+      if (!record || !record.path) {
+        return;
+      }
+      // if path == 'model' it means the object was initialized.
+      if (record.path !== 'model') {
+        this.updateValue(record.base);
+      }
+    },
+    /**
+     * Updates current `value` property from model.
+     * If the model attribute is not set it will take current model.
+     *
+     * @param {?Object<string, string>} model
+     */
+    updateValue: function(model) {
+      if (!this._openedValue) {
+        return;
+      }
+      model = model || this.model;
+      var hasModel = model && model.length;
+      if (this.autoEncode && hasModel) {
+        model = model.map(function(obj) {
+          var _obj = Object.assign({}, obj);
+          _obj.name = this.encodeQueryString(_obj.name);
+          _obj.value = this.encodeQueryString(_obj.value);
+          return _obj;
+        }, this);
+      }
+      var value = hasModel ? this.formArrayToString(model) : '';
+      this.__internalChange = true;
+      this.set('value', value);
+      this.__internalChange = false;
+    }
+  });
+  </script>
+</dom-module>
