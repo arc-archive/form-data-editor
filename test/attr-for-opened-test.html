@@ -88,13 +88,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           assert.isUndefined(element.value);
         });
 
-        test('Setting opened attribute will update the value', function() {
-          element.model = [{
+        test('Setting opened attribute will update the model', function() {
+          element.value = 'x-test=x-value';
+          var model = [{
             name: 'x-test',
             value: 'x-value'
           }];
           element.setAttribute('opened', true);
-          assert.equal(element.value, 'x-test=x-value');
+          assert.deepEqual(element.model, model);
         });
       });
 
