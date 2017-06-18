@@ -231,7 +231,7 @@ Custom property | Description | Default
       var prop = this._propertyForOpened;
       if (prop && prop === name) {
         if (this.getAttribute(name) !== null) {
-          this.updateValue();
+          this.updateModel(this.value);
         }
       }
     },
