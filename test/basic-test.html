@@ -78,7 +78,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       test('decodes value', function() {
         element.value = 'x+test=x+value';
-        element.decodePaylod();
+        element._decodePaylod();
 
         assert.equal(element.value, 'x test=x value');
       });
@@ -115,14 +115,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
-    suite('encodePaylod()', function() {
+    suite('_encodePaylod()', function() {
       var element;
       const TEST_VALUE = 'x test=x value';
 
       setup(function() {
         element = fixture('basic');
         element.value = TEST_VALUE;
-        element.encodePaylod();
+        element._encodePaylod();
       });
 
       test('Encodes value', function() {
@@ -138,14 +138,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
-    suite('decodePaylod()', function() {
+    suite('_decodePaylod()', function() {
       var element;
       const TEST_VALUE = 'x+test=x+value';
 
       setup(function() {
         element = fixture('basic');
         element.value = TEST_VALUE;
-        element.decodePaylod();
+        element._decodePaylod();
       });
 
       test('Decodes value', function() {
