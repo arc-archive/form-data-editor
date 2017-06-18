@@ -19,7 +19,7 @@ the License.
 <link rel="import" href="../iron-input/iron-input.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
-<link rel="import" href="../payload-parser-behavior/payload-parser-behavior.html">
+<link rel="import" href="../request-payload-editor-behavior/request-payload-editor-behavior.html">
 <link rel="import" href="../arc-polyfills/arc-polyfills.html">
 <!--
 An element to edit form data (x-www-form-urlencoded).
@@ -144,8 +144,8 @@ Custom property | Description | Default
     }
     </style>
     <div class="encoder-buttons">
-      <paper-button title="Encodes payload to x-www-form-urlencoded data" on-tap="encodePaylod">encode payload</paper-button>
-      <paper-button title="Decodes payload to human readable form" on-tap="decodePaylod">decode payload</paper-button>
+      <paper-button title="Encodes payload to x-www-form-urlencoded data" on-tap="_encodePaylod">encode payload</paper-button>
+      <paper-button title="Decodes payload to human readable form" on-tap="_decodePaylod">decode payload</paper-button>
     </div>
     <section class="editor">
       <template is="dom-repeat" items="{{model}}" on-dom-change="_onParamsRender">
@@ -169,7 +169,7 @@ Custom property | Description | Default
   Polymer({
     is: 'form-data-editor',
 
-    behaviors: [ArcBehaviors.PayloadParserBehavior],
+    behaviors: [ArcBehaviors.RequestPayloadEditorBehavior],
 
     /**
      * Event fire when the value of the editor change.
@@ -185,24 +185,6 @@ Custom property | Description | Default
        */
       model: Array,
       /**
-       * Generated message body from the form values.
-       */
-      value: {
-        type: String,
-        notify: true
-      },
-      /**
-       * An attribute name describing if the element is currently displayed.
-       * If set, the element will not compute values until the attribute becomes truly.
-       *
-       * This is helpful when this editor is used alongside other payload editors and only one
-       * at the time should perform a computation.
-       *
-       * Note that setting a property instead of attribute will not work. It must be an
-       * attribute.
-       */
-      attrForOpened: String,
-      /**
        * If true it will automatically url-encode value after a change.
        */
       autoEncode: Boolean
@@ -210,29 +192,13 @@ Custom property | Description | Default
 
     observers: [
       '_valueChanged(value)',
-      '_modelChanged(model.*)'
+      '_modelChanged(model.*)',
+      '__isOpenedChanged(_isOpened)'
     ],
 
-    get _propertyForOpened() {
-      if (!this.attrForOpened) {
-        return;
-      }
-      return Polymer.CaseMap.dashToCamelCase(this.attrForOpened);
-    },
-
-    get _openedValue() {
-      if (this._propertyForOpened) {
-        return this.hasAttribute(this._propertyForOpened);
-      }
-      return true;
-    },
-
-    attributeChanged: function(name) {
-      var prop = this._propertyForOpened;
-      if (prop && prop === name) {
-        if (this.getAttribute(name) !== null) {
-          this.updateModel(this.value);
-        }
+    __isOpenedChanged: function(isOpened) {
+      if (isOpened) {
+        this.updateModel(this.value);
       }
     },
 
@@ -241,7 +207,7 @@ Custom property | Description | Default
      * If the element is opened then it will update model.
      */
     _valueChanged: function(value) {
-      var isOpened = this._openedValue;
+      var isOpened = this._isOpened;
       if (this.__internalChange || !isOpened) {
         if (isOpened) {
           this.fire('payload-value-changed', {
@@ -256,6 +222,9 @@ Custom property | Description | Default
      * Updated the `model` from current `value`.
      */
     updateModel: function(value) {
+      if (!value) {
+        return this.set('model', undefined);
+      }
       var arr = this.stringToArray(value);
       if (this.autoEncode) {
         arr = this.decodeUrlEncoded(arr);
@@ -264,29 +233,20 @@ Custom property | Description | Default
     },
 
     /** Encode payload button press handler */
-    encodePaylod: function() {
-      if (!this._openedValue) {
+    _encodePaylod: function() {
+      if (!this._isOpened) {
         // value is out of sync with model
         return;
       }
-      var value = this.encodeUrlEncoded(this.value);
-      this.__internalChange = true;
-      this.set('value', value);
-      this.__internalChange = false;
-      var arr = this.stringToArray(value);
+      this.encodeValue();
+      var arr = this.stringToArray(this.value);
       this.set('model', arr);
     },
+
     /** Decode payload button press handler */
-    decodePaylod: function() {
-      if (!this._openedValue) {
-        // value is out of sync with model
-        return;
-      }
-      var value = this.decodeUrlEncoded(this.value);
-      this.__internalChange = true;
-      this.set('value', value);
-      this.__internalChange = false;
-      var arr = this.stringToArray(value);
+    _decodePaylod: function() {
+      this.decodeValue();
+      var arr = this.stringToArray(this.value);
       this.set('model', arr);
     },
     /**
@@ -350,7 +310,7 @@ Custom property | Description | Default
      * @param {?Object<string, string>} model
      */
     updateValue: function(model) {
-      if (!this._openedValue) {
+      if (!this._isOpened) {
         return;
       }
       model = model || this.model;

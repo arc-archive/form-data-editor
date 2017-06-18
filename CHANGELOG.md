@@ -1,3 +1,14 @@
+<a name="0.1.4"></a>
+## [0.1.4](https://github.com/advanced-rest-client/form-data-editor/compare/0.1.3...v0.1.4) (2017-06-18)
+
+
+### Update
+
+* Replaced part of the logic with common behavior for the editors. ([c3a5052ff70b3349e64aa7c32c8f37c11a59e724](https://github.com/advanced-rest-client/form-data-editor/commit/c3a5052ff70b3349e64aa7c32c8f37c11a59e724))
+* Updated versions of thest helpers ([694a477d52c41e0bbd99a08eb8e968deb5b492ca](https://github.com/advanced-rest-client/form-data-editor/commit/694a477d52c41e0bbd99a08eb8e968deb5b492ca))
+
+
+
 <a name="0.1.3"></a>
 ## [0.1.3](https://github.com/advanced-rest-client/form-data-editor/compare/0.1.2...v0.1.3) (2017-06-18)
 
