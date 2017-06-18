@@ -68,14 +68,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         test('Will not encode parameters', function() {
           const value = 'x test=x value';
           element.value = value;
-          element.encodePaylod();;
+          element._encodePaylod();
           assert.equal(element.value, value);
         });
 
         test('Will not decode parameters', function() {
           const value = 'x+test=x+value';
           element.value = value;
-          element.decodePaylod();;
+          element._decodePaylod();
           assert.equal(element.value, value);
         });
 
@@ -118,14 +118,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         test('Encodes parameters', function() {
           const value = 'x test=x value';
           element.value = value;
-          element.encodePaylod();;
+          element._encodePaylod();
           assert.notEqual(element.value, value);
         });
 
         test('Decodes parameters', function() {
           const value = 'x+test=x+value';
           element.value = value;
-          element.decodePaylod();;
+          element._decodePaylod();
           assert.notEqual(element.value, value);
         });
 
