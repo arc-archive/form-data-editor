@@ -23,6 +23,7 @@ the License.
 <link rel="import" href="../request-payload-editor-behavior/request-payload-editor-behavior.html">
 <link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
 <link rel="import" href="../raml-type-form-behavior/raml-type-form-behavior.html">
+<link rel="import" href="../paper-checkbox/paper-checkbox.html">
 <link rel="import" href="form-data-editor-item.html">
 <!--
 An element to edit form data (x-www-form-urlencoded).
@@ -101,9 +102,9 @@ Custom property | Description | Default
       display: block;
     }
 
-    .form-row {
-      @apply(--layout-horizontal);
-      @apply(--layout-center);
+    .form-item {
+      @apply --layout-horizontal;
+      @apply --layout-center;
 
       @apply(--form-data-editor-row);
     }
@@ -112,9 +113,15 @@ Custom property | Description | Default
       @apply(--layout-flex);
     }
 
-    .encoder-buttons {
+    .option-pane {
       margin: 8px 0;
-      @apply(--form-data-editor-encode-buttons);
+      @apply --layout-horizontal;
+      @apply --layout-center;
+      @apply --form-data-editor-encode-buttons;
+    }
+
+    .options-divider {
+      /*@apply --layout-flex;*/
     }
 
     .add-param-button {
@@ -147,17 +154,27 @@ Custom property | Description | Default
       @apply --layout-flex;
     }
 
-    .narrow .form-row {
+    .narrow .form-item {
       display: block;
     }
+
+    .form-item[data-optional] {
+      display: none;
+    }
+
+    :host([optional-opened]) [data-optional] {
+      @apply --layout-horizontal;
+    }
     </style>
-    <div class="encoder-buttons">
+    <div class="option-pane">
       <paper-button title="Encodes payload to x-www-form-urlencoded data" on-tap="_encodePaylod">encode payload</paper-button>
       <paper-button title="Decodes payload to human readable form" on-tap="_decodePaylod">decode payload</paper-button>
+      <span class="options-divider"></span>
+      <paper-checkbox hidden$="[[!hasOptional]]" checked="{{optionalOpened}}">Show optional properties</paper-checkbox>
     </div>
     <form is="iron-form" id="form">
-      <template is="dom-repeat" items="{{model}}" on-dom-change="_onParamsRender">
-        <div class="form-row">
+      <template is="dom-repeat" items="{{model}}">
+        <div class="form-item" data-optional$="[[_computeIsOptional(hasOptional, item.model.required)]]">
           <form-data-editor-item narrow="[[narrow]]" name="{{item.name}}" value="{{item.value}}" model="[[item.model]]"></form-data-editor-item>
           <span>
             <paper-icon-button icon="arc:close" on-tap="_removeParam"></paper-icon-button>
@@ -213,6 +230,25 @@ Custom property | Description | Default
         type: Array,
         readOnly: true,
         observer: '_modelFromViewModel'
+      },
+      /**
+       * Computed value. True if current view model as at least one optional
+       * value.
+       */
+      hasOptional: {
+        type: Boolean,
+        value: false,
+        computed: '_computeHasOptional(viewModel)',
+      },
+      /**
+       * When set and `ramlType` is set then it renders all possiblem
+       * parameters. By default optional parameters are hidden.
+       *
+       * This has no effect if there's no not required items in the model.
+       */
+      optionalOpened: {
+        type: Boolean,
+        reflectToAttribute: true
       }
     },
 
@@ -223,10 +259,10 @@ Custom property | Description | Default
     },
 
     observers: [
-      '_valueChanged(value)',
-      '_modelChanged(model.*)',
-      '__isOpenedChanged(_isOpened)',
-      '_ramlTypeChanged(ramlType)'
+      '_valueChanged(_isOpened, value)',
+      '_modelChanged(_isOpened, model.*)',
+      '_ramlTypeChanged(_isOpened, ramlType)',
+      '__isOpenedChanged(_isOpened)'
     ],
 
     __isOpenedChanged: function(isOpened) {
@@ -235,7 +271,10 @@ Custom property | Description | Default
       }
     },
 
-    _ramlTypeChanged: function(ramlType) {
+    _ramlTypeChanged: function(opened, ramlType) {
+      if (!opened) {
+        return;
+      }
       if (!ramlType) {
         this._setViewModel(undefined);
         return;
@@ -272,14 +311,14 @@ Custom property | Description | Default
      * Handler for value change.
      * If the element is opened then it will update model.
      */
-    _valueChanged: function(value) {
-      var isOpened = this._isOpened;
-      if (this.__internalChange || !isOpened) {
-        if (isOpened) {
-          this.fire('payload-value-changed', {
-            value: value
-          });
-        }
+    _valueChanged: function(opened, value) {
+      if (!opened) {
+        return;
+      }
+      if (this.__internalChange) {
+        this.fire('payload-value-changed', {
+          value: value
+        });
         return;
       }
       this.updateModel(value);
@@ -304,7 +343,7 @@ Custom property | Description | Default
     },
 
     _linkModels: function(model, viewModel) {
-      if (!viewModel || !model ||!model.length) {
+      if (!viewModel || !model || !model.length) {
         return;
       }
       this.__stopValueChanged = true;
@@ -335,14 +374,24 @@ Custom property | Description | Default
         return;
       }
       this.encodeValue();
-      var arr = this.stringToArray(this.value);
-      this.set('model', arr);
+      this.__postEncodeDecode();
     },
 
     /** Decode payload button press handler */
     _decodePaylod: function() {
+      if (!this._isOpened) {
+        // value is out of sync with model
+        return;
+      }
       this.decodeValue();
+      this.__postEncodeDecode();
+    },
+
+    __postEncodeDecode: function() {
       var arr = this.stringToArray(this.value);
+      arr = arr.map(function(item) {
+        return this._createModelItem(item);
+      }, this);
       this.set('model', arr);
     },
     /**
@@ -352,6 +401,9 @@ Custom property | Description | Default
      * been passed.
      */
     add: function(item) {
+      if (item instanceof Event) {
+        item = undefined;
+      }
       item = this._createModelItem(item);
       if (!this.model) {
         this.set('model', [item]);
@@ -364,24 +416,9 @@ Custom property | Description | Default
       item = item || {};
       item.name = item.name || '';
       item.value = item.value || '';
-      return this._createModelObject(item, this.modelOpts);
-    },
-
-    /**
-     * Focuses on the last line of the editor when it renders an item.
-     */
-    _onParamsRender: function() {
-      if (!this.root) {
-        return;
-      }
-      var row = Polymer.dom(this.root).querySelectorAll('.editor .form-row');
-      if (!row || !row.length) {
-        return;
-      }
-      row = row.pop();
-      try {
-        row.children[0].querySelector('input').focus();
-      } catch (e) {}
+      item = this._createModelObject(item, this.modelOpts);
+      item = this._addViewModel(item);
+      return item;
     },
 
     /** Remove element from the params form */
@@ -390,8 +427,8 @@ Custom property | Description | Default
       this.splice('model', index, 1);
     },
     // Handler for model change.
-    _modelChanged: function(record) {
-      if (!record || !record.path || this.__stopValueChanged) {
+    _modelChanged: function(opened, record) {
+      if (!opened || !record || !record.path || this.__stopValueChanged) {
         return;
       }
       var paths = record.path.split('.');
@@ -414,6 +451,31 @@ Custom property | Description | Default
         return item.name === modelName;
       });
       this.set(path + '.model', model);
+    },
+    /**
+     * Appends view model data to the data model.
+     * @param {Object} dataModel Data model item.
+     * @return {Object} The same object with `model` property. It can be
+     * `undefiend`.
+     */
+    _addViewModel: function(dataModel) {
+      var model = this._getViewModelForName(dataModel.name);
+      dataModel.model = model;
+      return dataModel;
+    },
+    /**
+     * Finds a model for given property name.
+     * @param {String} name Data model item name.
+     * @return {Object} View model or undefined if not found.
+     */
+    _getViewModelForName: function(name) {
+      var model = this.viewModel;
+      if (!model) {
+        return;
+      }
+      return model.find(function(item) {
+        return item.name === name;
+      });
     },
 
     _modelFromViewModel: function(viewModel) {
@@ -457,6 +519,21 @@ Custom property | Description | Default
     // Computes css class name for narrow layout
     _computeNarrowClass: function(narrow) {
       return narrow ? 'narrow' : undefined;
+    },
+    /**
+     * Computes if any of the model items is required.
+     */
+    _computeHasOptional: function(model) {
+      for (var i = 0, len = model.length; i < len; i++) {
+        if (!model[i].required) {
+          return true;
+        }
+      }
+      return false;
+    },
+
+    _computeIsOptional: function(hasOptional, required) {
+      return hasOptional && !required;
     }
   });
   </script>

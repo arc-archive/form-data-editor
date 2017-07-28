@@ -36,6 +36,11 @@ types:
       language: en_GB
       etag: "W\\244m4n5kj3gbn2nj4k4n4"
       age: 16
+      newsletter: false
+      email: email@domain.com
+      labels:
+        - user
+        - label
     properties:
       etag:
         (clearanceLevel):
@@ -124,10 +129,23 @@ types:
         type: string
         default: ""
         required: false
+      newsletter:
+        type: boolean
+        description: If true then the user want's to sign up for a newsletter.
+        required: true
+        default: false
+      email:
+        type: string
+        description: User email. Only relevant when signing up for a newsletter.
+        required: false
       zeroNumber:
         type: number
         default: 0
         required: false
+      labels:
+        type: array
+        items: string
+        description: List of tags associated with the user.
 /test:
   post:
     body:
