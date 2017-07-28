@@ -13,10 +13,11 @@ the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-input/paper-input-container.html">
+<link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../iron-input/iron-input.html">
+<link rel="import" href="../iron-form/iron-form.html">
+<link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../request-payload-editor-behavior/request-payload-editor-behavior.html">
@@ -104,7 +105,6 @@ Custom property | Description | Default
 
     .form-row {
       @apply(--layout-horizontal);
-      @apply(--layout-flex);
       @apply(--layout-center);
 
       @apply(--form-data-editor-row);
@@ -142,24 +142,48 @@ Custom property | Description | Default
     paper-icon-button:hover {
       color: var(--from-row-action-icon-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
     }
+
+    .name-field,
+    .value-field {
+      @apply --layout-flex;
+      @apply --layout-horizontal;
+      @apply --layout-center;
+    }
+
+    .param-name,
+    .param-value {
+      @apply --layout-flex;
+    }
+
+    .narrow .form-row {
+      display: block;
+    }
     </style>
     <div class="encoder-buttons">
       <paper-button title="Encodes payload to x-www-form-urlencoded data" on-tap="_encodePaylod">encode payload</paper-button>
       <paper-button title="Decodes payload to human readable form" on-tap="_decodePaylod">decode payload</paper-button>
     </div>
-    <section class="editor">
+    <section class$="editor [[_computeNarrowClass(narrow)]]">
       <template is="dom-repeat" items="{{model}}" on-dom-change="_onParamsRender">
         <div class="form-row">
-          <paper-input-container class="param-name" no-label-float inline>
-            <input is="iron-input" type="text" value="{{item.name::input}}" placeholder="Param name"/>
-          </paper-input-container>
-          <paper-input-container class="param-value" no-label-float inline>
-            <input is="iron-input" type="text" value="{{item.value::input}}" placeholder="Param value" name="[[item.name]]"/>
-          </paper-input-container>
-          <span>
-            <paper-icon-button icon="arc:close" on-tap="_removeParam"></paper-icon-button>
-            <paper-tooltip animation-delay="200">Remove parameter</paper-tooltip>
-          </span>
+          <div class="name-field">
+            <paper-input value="{{item.name}}" label="Param name" class="param-name" no-label-float="[[!narrow]]"></paper-input>
+            <template is="dom-if" if="[[narrow]]">
+              <span>
+                <paper-icon-button icon="arc:close" on-tap="_removeParam"></paper-icon-button>
+                <paper-tooltip animation-delay="200">Remove parameter</paper-tooltip>
+              </span>
+            </template>
+          </div>
+          <div class="value-field">
+            <paper-input name="[[item.name]]" value="{{item.value}}" label="Param value" class="param-name" no-label-float="[[!narrow]]"></paper-input>
+            <template is="dom-if" if="[[!narrow]]">
+              <span>
+                <paper-icon-button icon="arc:close" on-tap="_removeParam"></paper-icon-button>
+                <paper-tooltip animation-delay="200">Remove parameter</paper-tooltip>
+              </span>
+            </template>
+          </div>
         </div>
       </template>
     </section>
@@ -187,7 +211,14 @@ Custom property | Description | Default
       /**
        * If true it will automatically url-encode value after a change.
        */
-      autoEncode: Boolean
+      autoEncode: Boolean,
+      /**
+       * If set it renders a narrow layout
+       */
+      narrow: {
+        type: Boolean,
+        value: false
+      }
     },
 
     observers: [
@@ -327,6 +358,10 @@ Custom property | Description | Default
       this.__internalChange = true;
       this.set('value', value);
       this.__internalChange = false;
+    },
+    // Computes css class name for narrow layout
+    _computeNarrowClass: function(narrow) {
+      return narrow ? 'narrow' : undefined;
     }
   });
   </script>
