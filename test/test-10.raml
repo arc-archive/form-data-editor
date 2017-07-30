@@ -1,0 +1,161 @@
+#%RAML 1.0
+title: Form data API
+
+annotationTypes:
+  annotationTest: nil
+  deprecated: string
+  clearanceLevel:
+    properties:
+      level:
+        enum: [ low, medium, high ]
+        required: true
+      signature:
+        pattern: "\\d{3}-\\w{12}"
+        required: true
+      id:
+        type: integer
+        description: Id of the supervisor
+
+types:
+  Person:
+    type: object
+    displayName: A person resource
+    description: |
+      An object representing a person in the API.
+      This object will be used in all methods returning a Person or list of people.
+    example:
+      id: "R34fg663H9KW9MMSKISI"
+      name: "Pawel Psztyc"
+      birthday: "1983-10-20"
+      gender: male
+      url: "https://domain.com/profile/pawel.psztyc"
+      image:
+        url: https://domain.com/profile/pawel.psztyc/image
+        thumb: https://domain.com/profile/pawel.psztyc/image/thumb
+      tagline: Some text about me.
+      language: en_GB
+      etag: "W\\244m4n5kj3gbn2nj4k4n4"
+      age: 16
+      newsletter: false
+      email: email@domain.com
+      labels:
+        - user
+        - label
+    properties:
+      etag:
+        (clearanceLevel):
+          level: high
+          signature: 230-ghtwvfrs1itr
+          id: 123
+        type: string
+        pattern: W\\[a-zA-Z0-9]+
+        minLength: 8
+        maxLength: 25
+        default: "W\\244m4n5kj3gbn2nj4k4n4"
+        example: "W\\244m4n5kj3gbn2nj4k4n4"
+        description: |
+          ETag of this resource for caching purposes.
+          __This property will be ignored when creating an object.__
+      id:
+        description: A unique identifier for a person. It is a 32 bit string containing alphanumeric characters.
+        type: string
+        example: akIamKH098-NJjgugy-98iU97j
+        pattern: "[a-zA-Z0-9-]+"
+      name:
+        (annotationTest):
+        required: true
+        example: John Smith
+        description: Person full name. The input will be rejected if this property is not set while creating new object.
+        type: string
+        pattern: "[0-9a-zA-Z ]+"
+        default: Sam Smith
+      birthday:
+        type: date-only
+        description: The person's date of birth, represented as YYYY-MM-DD.
+        default: 2017-06-23
+      age:
+        type: integer
+        minimum: 13
+        maximum: 120
+        example: 18
+        description: An age of a person at the moment of registering the profile.
+      gender?:
+        type: string
+        enum: [male, female, other, unspecified]
+        default: unspecified
+        description: |
+          The person's gender. Possible values includes, but are not limited to, the following values:
+          * "male" - Male gender.
+          * "female" - Female gender.
+          * "other" - Other.
+      url:
+        (deprecated): The URL to the profile won't be supported in the future
+        (clearanceLevel):
+          level: high
+          signature: 230-ghtwvfrs1itr
+          id: 123
+        (annotationTest):
+        type: string
+        description: The URL of this person's profile.
+      image:
+        description: |
+          An image object representing an image object strored in the file store.
+          The image can be only included in the response. It has no effect if the Image appear in the
+          request. Endpoint handles image creation on it's own and clients can't process images
+          except of sending image data.
+        type: object
+        properties:
+          url:
+            type: string
+            description: |
+              The URL of the image.
+              To resize the image and crop it to a square, append the query string **?sz=x**, where x is the dimension in pixels of each side.
+          thumb:
+            type: string
+            displayName: Thumbnail
+            description: |
+              An URL to the thumbnail of the image. Thumbnails are 60x60px cropped images of the original image.
+        example:
+          url: https://domain.com/profile/pawel.psztyc/image
+          thumb: https://domain.com/profile/pawel.psztyc/image/thumb
+      tagline:
+        (deprecated): This item will be removed in futute release of this API.
+        type: string
+        description: The brief description (tagline) of this person.
+      language:
+        type: string
+        description: The user's preferred language for rendering.
+      emptyDefault:
+        type: string
+        default: ""
+        required: false
+      newsletter:
+        type: boolean
+        description: If true then the user want's to sign up for a newsletter.
+        required: true
+        default: false
+      email:
+        type: string
+        description: User email. Only relevant when signing up for a newsletter.
+        required: false
+      zeroNumber:
+        type: number
+        default: 0
+        required: false
+      labels:
+        type: array
+        items: string
+        description: List of tags associated with the user.
+/test:
+  post:
+    body:
+      application/json:
+        type: Person
+      application/x-www-form-urlencoded:
+        (deprecated): This response type is deprecated and soon will be replaced.
+        type: Person
+        properties:
+          userPicture:
+            type: file
+            fileTypes: ['image/jpeg', 'image/png']
+            maxLength: 307200
