@@ -17,7 +17,6 @@ the License.
 <link rel="import" href="../iron-form/iron-form.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../request-payload-editor-behavior/request-payload-editor-behavior.html">
@@ -38,29 +37,27 @@ Empty values for both name and value inputs are not included in final body value
 <form-data-editor></form-data-editor>
 ```
 
-The element contains encode and decode values buttons so the user can choose if and when to
-decode / encode the value. If `autoEncode` property is set (the `auto-encode` attribute) then this
-task will be handled automatically. However it may cause problems for the user in some cases (when,
-for example the user paste already encoded value to the input field it will be encoded again).
+The element implements `request-payload-editor-behavior` that offers methods
+to encode and decode values. The UI contains controls to encode and decode
+values.
 
-### Example
+## Models
 
-```html
-<form-data-editor auto-encode value="{{payload}}"></form-data-editor>
-```
+The element implements `ArcBehaviors.RamlTypeFormBehavior` to compute a model
+from a RAML type. If `ramlType` property is set then it computes the `dataModel`
+property with RAML data model for form view.
 
-### Prohibit element from computing values
+Internally the element generates a view `model`. If `dataModel` contains an item
+with `name` that equals `model` item name then it adds data model item to the
+view model. This model is then used to build a form controls for given RAML type.
 
-The element will compute it's internal model every time the value change. Sometimes you may want to
-use this element alongside other payload editors. In this case, if the element is still in the DOM
-and accepts value change, you may wish to prohibit any computations if other element is handling
-payload edits. To do so, set `attrForOpened` property to an attribute name that will be set when
-the element should process inputs. If this attribute is not set, then computations will be halted.
+## Disabling model and value computation
 
-Value for `attrForOpened` can be any name that is not already used by the element in the properties
-list.
+To disable any computations in the element set `attrForOpened` attribute. When
+an attribute is set with the name that equals `attrForOpened` value then
+computations will be resumed.
 
-### Example
+It is helpful when UI allows switching between different editors:
 
 ```html
 <form-data-editor attr-for-opened="enabled"></form-data-editor>
@@ -72,7 +69,16 @@ list.
 </script>
 ```
 
-Note, it will only work if you set an attribute. It will not handle property change.
+Or you can use `iron-pages` element:
+
+```html
+<iron-pages selected="{{openedEditor}}" selected-attribute="opened">
+  <paper-textarea value="{{value}}"></paper-textarea>
+  <form-data-editor attr-for-opened="opened" value="{{value}}"></form-data-editor>
+</iron-pages>
+```
+
+Note, this will only work if you set an attribute. It will not handle property change.
 
 ### Styling
 `<form-data-editor>` provides the following custom properties and mixins for styling:
@@ -80,9 +86,7 @@ Note, it will only work if you set an attribute. It will not handle property cha
 Custom property | Description | Default
 ----------------|-------------|----------
 `--form-data-editor` | Mixin applied to the element | `{}`
-`--form-data-editor-row` | Mixin applied to form rows | `{}`
-`--form-data-editor-name-input` | Mixin applied to name input container | `{}`
-`--form-data-editor-value-input` | Mixin applied to value input container | `{}`
+`--form-data-editor-row` | Mixin applied to each form row | `{}`
 `--form-data-editor-encode-buttons` | Mixin applied to encode / decode buttons container | `{}`
 `--action-button` | Theme mixin, applied to the "add parameter" button | `{}`
 `--form-data-editor-add-button` | Mixin applied to the "add parameter" button | `{}`
@@ -90,23 +94,29 @@ Custom property | Description | Default
 `--form-data-editor-add-button-color` | Font color of the "add parameter" button | `--primary-background-color`
 `--from-row-action-icon-color` | Delete parameter button color | `--icon-button-color` or `rgba(0, 0, 0, 0.74)`
 `--from-row-action-icon-color-hover` | Delete parameter button color when hovering with the pointer | `--accent-color` or `rgba(0, 0, 0, 0.74)`
+`--form-data-editor-row-narrow` | Mixin applied to each form row when narrow layout | `{}`
+`--form-data-editor-row-optional` | Mixin applied to the optional rows | `{}`
+`--form-data-editor-row-optional-visible` | Mixin applied to the optional rows when becomes visible | `{}`
 
 @group UI Elements
 @element form-data-editor
-@demo demo/index.html
+@demo demo/index.html Regular element usage
+@demo demo/raml.html Usage with RAML type
 -->
 <dom-module id="form-data-editor">
   <template>
     <style>
     :host {
       display: block;
+
+      @apply --form-data-editor;
     }
 
     .form-item {
       @apply --layout-horizontal;
-      @apply --layout-center;
+      @apply --layout-start;
 
-      @apply(--form-data-editor-row);
+      @apply --form-data-editor-row;
     }
 
     form-data-editor-item {
@@ -120,8 +130,8 @@ Custom property | Description | Default
       @apply --form-data-editor-encode-buttons;
     }
 
-    .options-divider {
-      /*@apply --layout-flex;*/
+    .option-pane paper-checkbox {
+      margin-left: 12px;
     }
 
     .add-param-button {
@@ -129,8 +139,8 @@ Custom property | Description | Default
       background-color: var(--form-data-editor-add-button-background-color, --primary-color);
       color: var(--form-data-editor-add-button-color, --primary-background-color);
 
-      @apply(--action-button);
-      @apply(--form-data-editor-add-button);
+      @apply --action-button;
+      @apply --form-data-editor-add-button;
     }
 
     paper-icon-button {
@@ -142,40 +152,30 @@ Custom property | Description | Default
       color: var(--from-row-action-icon-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
     }
 
-    .name-field,
-    .value-field {
-      @apply --layout-flex;
-      @apply --layout-horizontal;
-      @apply --layout-center;
-    }
-
-    .param-name,
-    .param-value {
-      @apply --layout-flex;
-    }
-
     .narrow .form-item {
       display: block;
+      @apply --form-data-editor-row-narrow;
     }
 
     .form-item[data-optional] {
       display: none;
+      @apply --form-data-editor-row-optional;
     }
 
     :host([optional-opened]) [data-optional] {
       @apply --layout-horizontal;
+      @apply --form-data-editor-row-optional-visible;
     }
     </style>
     <div class="option-pane">
       <paper-button title="Encodes payload to x-www-form-urlencoded data" on-tap="_encodePaylod">encode payload</paper-button>
       <paper-button title="Decodes payload to human readable form" on-tap="_decodePaylod">decode payload</paper-button>
-      <span class="options-divider"></span>
       <paper-checkbox hidden$="[[!hasOptional]]" checked="{{optionalOpened}}">Show optional properties</paper-checkbox>
     </div>
     <form is="iron-form" id="form">
       <template is="dom-repeat" items="{{model}}">
         <div class="form-item" data-optional$="[[_computeIsOptional(hasOptional, item.model.required)]]">
-          <form-data-editor-item narrow="[[narrow]]" name="{{item.name}}" value="{{item.value}}" model="[[item.model]]"></form-data-editor-item>
+          <form-data-editor-item narrow="[[narrow]]" name="{{item.name}}" value="{{item.value}}" model="[[item.model]]" required="[[item.model.required]]"></form-data-editor-item>
           <span>
             <paper-icon-button icon="arc:close" on-tap="_removeParam"></paper-icon-button>
             <paper-tooltip animation-delay="200">Remove parameter</paper-tooltip>
@@ -191,7 +191,8 @@ Custom property | Description | Default
 
     behaviors: [
       ArcBehaviors.RequestPayloadEditorBehavior,
-      ArcBehaviors.RamlTypeFormBehavior
+      ArcBehaviors.RamlTypeFormBehavior,
+      Polymer.IronValidatableBehavior
     ],
 
     /**
@@ -204,13 +205,9 @@ Custom property | Description | Default
 
     properties: {
       /**
-       * Generated form model for the value.
+       * Computed view model.
        */
       model: Array,
-      /**
-       * If true it will automatically url-encode value after a change.
-       */
-      autoEncode: Boolean,
       /**
        * If set it renders a narrow layout
        */
@@ -226,19 +223,19 @@ Custom property | Description | Default
       /**
        * The view model generated by the RAML type.
        */
-      viewModel: {
+      dataModel: {
         type: Array,
         readOnly: true,
-        observer: '_modelFromViewModel'
+        observer: '_modelFromDataModel'
       },
       /**
-       * Computed value. True if current view model as at least one optional
+       * Computed value. True if the data model has at least one optional
        * value.
        */
       hasOptional: {
         type: Boolean,
         value: false,
-        computed: '_computeHasOptional(viewModel)',
+        computed: '_computeHasOptional(dataModel)',
       },
       /**
        * When set and `ramlType` is set then it renders all possiblem
@@ -251,8 +248,10 @@ Custom property | Description | Default
         reflectToAttribute: true
       }
     },
-
-    get modelOpts() {
+    /**
+     * Default options for data model generation.
+     */
+    get _modelOpts() {
       return {
         decodeValues: true
       };
@@ -271,12 +270,16 @@ Custom property | Description | Default
       }
     },
 
+    _getValidity: function() {
+      return this.$.form.validate();
+    },
+
     _ramlTypeChanged: function(opened, ramlType) {
       if (!opened) {
         return;
       }
       if (!ramlType) {
-        this._setViewModel(undefined);
+        this._setDataModel(undefined);
         return;
       }
       if (ramlType.formParameters) {
@@ -288,24 +291,25 @@ Custom property | Description | Default
 
     _modelFromRaml10: function(type) {
       if (!type || !type.properties || !type.properties.length) {
-        this._setViewModel(undefined);
+        this._setDataModel(undefined);
+        return;
       }
-      var modelOpts = this.modelOpts;
+      var modelOpts = this._modelOpts;
       var model = type.properties.map(function(value) {
         return this._createModelObject(value, modelOpts);
       }, this);
-      this._setViewModel(model);
+      this._setDataModel(model);
     },
 
     _modelFromRaml08: function(type) {
       var params = this._clone(type.formParameters);
-      var modelOpts = this.modelOpts;
+      var modelOpts = this._modelOpts;
       var model = Object.keys(params).map(function(key) {
         var value = type.formParameters[key];
         value.key = key;
         return this._createModelObject(value, modelOpts);
       }, this);
-      this._setViewModel(model);
+      this._setDataModel(model);
     },
     /**
      * Handler for value change.
@@ -324,44 +328,47 @@ Custom property | Description | Default
       this.updateModel(value);
     },
     /**
-     * Updated the `model` from current `value`.
+     * Updates the `model` from current `value`.
      */
     updateModel: function(value) {
       if (!value) {
-        if (this.model && this.viewModel) {
+        if (this.model && this.dataModel) {
           this.updateValue();
           return;
         }
         return this.set('model', undefined);
       }
       var arr = this.stringToArray(value);
-      if (this.autoEncode) {
-        arr = this.decodeUrlEncoded(arr);
-      }
       this.set('model', arr);
-      this._linkModels(arr, this.viewModel);
+      this._linkModels(arr, this.dataModel);
     },
-
-    _linkModels: function(model, viewModel) {
-      if (!viewModel || !model || !model.length) {
+    /**
+     * Adds a data model property to a view model item if data model exists.
+     * It checks names to compare models.
+     *
+     * @param {Array} model A view model (form data model)
+     * @param {Array} dataModel A data model (RAML type model)
+     */
+    _linkModels: function(viewModel, dataModel) {
+      if (!dataModel || !viewModel || !viewModel.length) {
         return;
       }
       this.__stopValueChanged = true;
-      var vl = viewModel.length;
-      for (var i = 0, len = model.length; i < len; i++) {
-        var oldModel = model[i].model;
+      var vl = dataModel.length;
+      for (var i = 0, len = viewModel.length; i < len; i++) {
+        var oldModel = viewModel[i].model;
         var changed = false;
         for (var j = 0; j < vl; j++) {
-          if (model[i].name === viewModel[j].name) {
+          if (viewModel[i].name === dataModel[j].name) {
             changed = true;
-            if (oldModel !== viewModel[j]) {
-              this.set(['model', i, 'model'], viewModel[j]);
+            if (oldModel !== dataModel[j]) {
+              this.set(['model', i, 'model'], dataModel[j]);
             }
             break;
           }
         }
         if (oldModel && !changed) {
-          this.set(['model', i, 'model'], undefined);
+          this.set(['model', i, 'model'], {});
         }
       }
       this.__stopValueChanged = false;
@@ -373,7 +380,7 @@ Custom property | Description | Default
         // value is out of sync with model
         return;
       }
-      this.encodeValue();
+      this.encodeUrlEncoded(this.model);
       this.__postEncodeDecode();
     },
 
@@ -383,16 +390,23 @@ Custom property | Description | Default
         // value is out of sync with model
         return;
       }
-      this.decodeValue();
+      this.decodeUrlEncoded(this.model);
       this.__postEncodeDecode();
     },
-
+    /**
+     * Notifies paths about a change in the model's name/value properties.
+     */
     __postEncodeDecode: function() {
-      var arr = this.stringToArray(this.value);
-      arr = arr.map(function(item) {
-        return this._createModelItem(item);
-      }, this);
-      this.set('model', arr);
+      var model = this.model;
+      if (!model) {
+        return;
+      }
+      this.__internalChange = true;
+      for (var i = 0, len = model.length; i < len; i++) {
+        this.notifyPath(['model', i, 'name']);
+        this.notifyPath(['model', i, 'value']);
+      }
+      this.__internalChange = false;
     },
     /**
      * Append empty parameter row.
@@ -416,8 +430,8 @@ Custom property | Description | Default
       item = item || {};
       item.name = item.name || '';
       item.value = item.value || '';
-      item = this._createModelObject(item, this.modelOpts);
-      item = this._addViewModel(item);
+      item = this._createModelObject(item, this._modelOpts);
+      item = this._addDataModel(item);
       return item;
     },
 
@@ -439,15 +453,15 @@ Custom property | Description | Default
       }
       if (propertyChanged === 'name') {
         var path = paths.join('.');
-        this._updateModelWithViewModel(path, record.value);
+        this._updateModelWithDataModel(path, record.value);
       }
     },
 
-    _updateModelWithViewModel: function(path, modelName) {
-      if (!this.viewModel) {
+    _updateModelWithDataModel: function(path, modelName) {
+      if (!this.dataModel) {
         return;
       }
-      var model = this.viewModel.find(function(item) {
+      var model = this.dataModel.find(function(item) {
         return item.name === modelName;
       });
       this.set(path + '.model', model);
@@ -458,9 +472,9 @@ Custom property | Description | Default
      * @return {Object} The same object with `model` property. It can be
      * `undefiend`.
      */
-    _addViewModel: function(dataModel) {
-      var model = this._getViewModelForName(dataModel.name);
-      dataModel.model = model;
+    _addDataModel: function(dataModel) {
+      var model = this._getDataModelForName(dataModel.name);
+      dataModel.model = model || {};
       return dataModel;
     },
     /**
@@ -468,8 +482,8 @@ Custom property | Description | Default
      * @param {String} name Data model item name.
      * @return {Object} View model or undefined if not found.
      */
-    _getViewModelForName: function(name) {
-      var model = this.viewModel;
+    _getDataModelForName: function(name) {
+      var model = this.dataModel;
       if (!model) {
         return;
       }
@@ -477,12 +491,16 @@ Custom property | Description | Default
         return item.name === name;
       });
     },
-
-    _modelFromViewModel: function(viewModel) {
-      if (!viewModel) {
+    /**
+     * Sets a view model (`model` property) from data model.
+     *
+     * @param {Array} dataModel The data model
+     */
+    _modelFromDataModel: function(dataModel) {
+      if (!dataModel) {
         return;
       }
-      var model = viewModel.map(function(item) {
+      var model = dataModel.map(function(item) {
         return {
           name: item.name || item.key,
           value: item.value || '',
@@ -503,14 +521,6 @@ Custom property | Description | Default
       }
       model = model || this.model;
       var hasModel = model && model.length;
-      if (this.autoEncode && hasModel) {
-        model = model.map(function(obj) {
-          var _obj = Object.assign({}, obj);
-          _obj.name = this.encodeQueryString(_obj.name);
-          _obj.value = this.encodeQueryString(_obj.value);
-          return _obj;
-        }, this);
-      }
       var value = hasModel ? this.formArrayToString(model) : '';
       this.__internalChange = true;
       this.set('value', value);

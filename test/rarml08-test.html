@@ -1,0 +1,140 @@
+<!doctype html>
+<!--
+@license
+Copyright 2017 The Advanced REST client authors <arc@mulesoft.com>
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+    <link rel="import" href="../../raml-js-parser/raml-js-parser.html">
+    <link rel="import" href="../../raml-json-enhance/raml-json-enhance.html">
+    <link rel="import" href="../form-data-editor.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <form-data-editor></form-data-editor>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="parser">
+      <template>
+        <raml-js-parser json></raml-js-parser>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="enhancer">
+      <template>
+        <raml-json-enhance></raml-json-enhance>
+      </template>
+    </test-fixture>
+
+    <script>
+    /* global fixture, assert, TestHelpers */
+    /* jshint esnext:true */
+    suite('RAML 0.8', function() {
+      var type;
+      suiteSetup(function(done) {
+        var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+        var parser = fixture('parser');
+        var enhancer = fixture('enhancer');
+        enhancer.addEventListener('raml-json-enhance-ready', function(e) {
+          type = e.detail.json.resources[0].methods[0].body[0];
+          done();
+        });
+        parser.loadApi(baseUrl + 'test-08.raml')
+        .then(function(data) {
+          enhancer.json = data.json.specification;
+        });
+      });
+
+      suite('Data model', function() {
+        var element;
+        setup(function() {
+          element = fixture('basic');
+          element.ramlType = type;
+          TestHelpers.forceXIfStamp(element);
+        });
+
+        test('hasOptional is computed', function() {
+          assert.isTrue(element.hasOptional);
+        });
+
+        test('dataModel is computed', function() {
+          assert.typeOf(element.dataModel, 'array');
+        });
+
+        test('dataModel contains 15 elements', function() {
+          assert.lengthOf(element.dataModel, 12);
+        });
+
+        test('model item contains supported properties', function() {
+          var model = element.dataModel[0];
+          assert.typeOf(model.type, 'string');
+          assert.typeOf(model.required, 'boolean');
+          assert.typeOf(model.name, 'string');
+          assert.isFalse(typeof model.value === undefined);
+          assert.typeOf(model.isEnum, 'boolean');
+          assert.typeOf(model.isBoolean, 'boolean');
+          assert.typeOf(model.isArray, 'boolean');
+          assert.typeOf(model.hasDescription, 'boolean');
+          assert.typeOf(model.inputLabel, 'string');
+        });
+      });
+
+      suite('View model', function() {
+        var element;
+        setup(function() {
+          element = fixture('basic');
+          element.ramlType = type;
+          TestHelpers.forceXIfStamp(element);
+        });
+
+        test('model is computed from data model', function() {
+          assert.typeOf(element.model, 'array');
+        });
+
+        test('model contains 15 elements', function() {
+          assert.lengthOf(element.model, 12);
+        });
+
+        test('model item contains supported properties', function() {
+          var model = element.model[0];
+          assert.typeOf(model.name, 'string');
+          assert.isFalse(typeof model.value === undefined);
+          assert.typeOf(model.model, 'object');
+        });
+
+        test('Changing the name removes model', function() {
+          element.set('model.0.name', 'x-test');
+          TestHelpers.forceXIfStamp(element);
+          assert.isUndefined(element.model[0].model);
+        });
+
+        test('Restores model for existing name', function() {
+          element.set('model.0.name', 'x-test');
+          TestHelpers.forceXIfStamp(element);
+          element.set('model.0.name', 'etag');
+          assert.typeOf(element.model[0].model, 'object');
+        });
+      });
+    });
+    </script>
+
+  </body>
+</html>

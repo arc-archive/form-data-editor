@@ -1,6 +1,6 @@
 <!--
 @license
-Copyright 2016 The Advanced REST client authors <arc@mulesoft.com>
+Copyright 2017 The Advanced REST client authors <arc@mulesoft.com>
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
 the License at
@@ -21,8 +21,9 @@ the License.
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../marked-element/marked-element.html">
 <link rel="import" href="../markdown-styles/markdown-styles.html">
+<link rel="import" href="../raml-type-form-input/raml-type-form-input.html">
 <!--
-
+An element that renders form controls for the editor.
 
 ### Styling
 `<form-data-editor>` provides the following custom properties and mixins for styling:
@@ -69,23 +70,9 @@ Custom property | Description | Default
       @apply(--form-data-editor-name-input);
     }
 
-    .param-value {
-      @apply(--layout-flex);
-      @apply(--form-data-editor-value-input);
-    }
-
     .encoder-buttons {
       margin: 8px 0;
       @apply(--form-data-editor-encode-buttons);
-    }
-
-    .add-param-button {
-      margin-top: 12px;
-      background-color: var(--form-data-editor-add-button-background-color, --primary-color);
-      color: var(--form-data-editor-add-button-color, --primary-background-color);
-
-      @apply(--action-button);
-      @apply(--form-data-editor-add-button);
     }
 
     paper-icon-button {
@@ -101,96 +88,36 @@ Custom property | Description | Default
     .value-field {
       @apply --layout-flex;
       @apply --layout-horizontal;
-      @apply --layout-center;
+      @apply --layout-start;
     }
 
     .param-name,
-    .param-value {
+    raml-type-form-input {
       @apply --layout-flex;
     }
 
     .narrow.form-row {
       display: block;
     }
+
+    .narrow .param-name {
+      margin-right: 0;
+    }
     </style>
-    <template is="dom-if" if="[[isEnum]]">
-      <paper-dropdown-menu label="[[model.inputLabel]]" name="[[name]]" required="[[model.required]]">
-        <paper-listbox class="dropdown-content" attr-for-selected="data-value" selected="{{value}}">
-          <template is="dom-repeat" items="[[model.enum]]">
-            <paper-item data-value$="[[item]]">[[item]]</paper-item>
-          </template>
-        </paper-listbox>
-      </paper-dropdown-menu>
-    </template>
-
-    <template is="dom-if" if="[[isBoolean]]">
-      <paper-dropdown-menu label="[[model.inputLabel]]" name="[[name]]" required="[[model.required]]">
-        <paper-listbox class="dropdown-content" attr-for-selected="data-value" selected="{{value}}">
-          <paper-item data-value="true">True</paper-item>
-          <paper-item data-value="false">False</paper-item>
-        </paper-listbox>
-      </paper-dropdown-menu>
-    </template>
-
-    <template is="dom-if" if="[[isInput]]">
-      <div class$="form-row [[_computeNarrowClass(narrow)]]">
-        <div class="name-field">
-          <paper-input value="{{name}}" label="Parameter name" class="param-name" no-label-float="[[!narrow]]" required></paper-input>
-        </div>
-        <div class="value-field">
-          <template is="dom-if" if="[[!isArray]]">
-            <paper-input
-              name="[[name]]"
-              value="{{value}}"
-              required="[[model.required]]"
-              label="Parameter value"
-              class="param-name"
-              pattern="[[model.pattern]]"
-              auto-validate
-              type="[[model.inputType]]"
-              min="[[model.minimum]]"
-              max="[[model.maximum]]"
-              maxlength="[[model.maxLength]]"
-              no-label-float="[[!narrow]]"></paper-input>
-          </template>
-          <template is="dom-if" if="[[isArray]]">
-            <template is="dom-repeat" items="[[arrayValue]]">
-              <div class="array-item">
-                <paper-input
-                  label="Parameter value"
-                  value="{{item.value}}"
-                  required="[[model.required]]"
-                  pattern="[[model.pattern]]"
-                  name="[[name]]"
-                  auto-validate
-                  type="[[model.inputType]]"
-                  min="[[model.minimum]]"
-                  max="[[model.maximum]]"
-                  maxlength="[[model.maxLength]]"
-                  no-label-float
-                  on-input="_arrayValueChanged">
-                </paper-input>
-                <template is="dom-if" if="[[index]]">
-                  <span>
-                    <paper-icon-button class="help-icon" suffix icon="arc:remove-circle-outline" on-tap="_removeArrayValue"></paper-icon-button>
-                    <paper-tooltip position="left" offset="1" margin-top="1" animation-delay="300">Remove array value</paper-tooltip>
-                  </span>
-                </template>
-              </div>
-            </template>
-            <div class="add-action">
-              <paper-button on-tap="_addArrayValue"><iron-icon class="help-icon" icon="arc:add-circle-outline"></iron-icon>Add array value</paper-button>
-            </div>
-          </template>
-          <template is="dom-if" if="[[model.hasDescription]]">
-            <span>
-              <paper-icon-button class="help-icon" suffix icon="arc:help" hidden$="[[!item.hasDescription]]" on-tap="_openDocs"></paper-icon-button>
-              <paper-tooltip position="left" offset="1" margin-top="1" animation-delay="300">Display documentation</paper-tooltip>
-            </span>
-          </template>
-        </div>
+    <div class$="form-row [[_computeNarrowClass(narrow)]]">
+      <div class="name-field">
+        <paper-input value="{{name}}" label="Parameter name" class="param-name" no-label-float="[[noLabelFloat]]" required></paper-input>
       </div>
-    </template>
+      <div class="value-field">
+        <raml-type-form-input model="[[_computeLabel(model)]]" name="[[name]]" value="{{value}}" no-label-float="[[noLabelFloat]]"></raml-type-form-input>
+        <template is="dom-if" if="[[model.hasDescription]]">
+          <span>
+            <paper-icon-button class="help-icon" suffix icon="arc:help" hidden$="[[!item.hasDescription]]" on-tap="toggleDocumentation"></paper-icon-button>
+            <paper-tooltip position="left" offset="1" margin-top="1" animation-delay="300">Display documentation</paper-tooltip>
+          </span>
+        </template>
+      </div>
+    </div>
     <template is="dom-if" if="[[model.hasDescription]]">
       <div class="docs">
         <iron-collapse opened="[[docsOpened]]">
@@ -228,10 +155,7 @@ Custom property | Description | Default
       /**
        * A model item
        */
-      model: {
-        type: Object,
-        observer: '_modelChanged'
-      },
+      model: Object,
       /**
        * If set it renders a narrow layout
        */
@@ -239,124 +163,45 @@ Custom property | Description | Default
         type: Boolean,
         value: false
       },
-      // Computed value, True if current item is a dropdown with values.
-      isEnum: Boolean,
-      // Computed value, True if current item is an regular input
-      isInput: {
-        type: Boolean,
-        value: true
-      },
-      // Computed value, True if current item is an array object
-      isArray: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true
-      },
       /**
-       * True to render documentation for an item opened
+       * True to render documentation (if set in model)
        */
-      docsOpened: Boolean
-    },
-
-    observers: [
-      '_isArrayChanged(isArray, value)'
-    ],
-
-    resetStates: function() {
-      this.isEnum = undefined;
-      this.isInput = undefined;
-      this.isArray = undefined;
-      this.isBoolean = undefined;
+      docsOpened: Boolean,
+      /**
+       * Computed value passed to the inputs.
+       * If true then floating labels are not displayed.
+       * Floating labels are visible only for narrow layout.
+       */
+      noLabelFloat: {
+        type: Boolean,
+        value: true,
+        computed: '_computeNoLabelFloat(narrow)'
+      }
     },
 
     // Computes css class name for narrow layout
     _computeNarrowClass: function(narrow) {
       return narrow ? 'narrow' : undefined;
     },
-    // Sets the template depending on model configuration
-    _modelChanged: function(model) {
-      this.resetStates();
-      if (!model) {
-        this.isInput = true;
-        this.isArray = false;
-        return;
-      }
-      if (model.isEnum) {
-        this.isEnum = true;
-        return;
-      }
-      if (model.isArray) {
-        this.isArray = true;
-        this.isInput = true;
-        return;
-      }
-
-      if (model.isBoolean) {
-        this.isBoolean = true;
-        return;
-      }
-      this.isInput = true;
-      this.isArray = false;
+    // Computes `noLabelFloat` property
+    _computeNoLabelFloat: function(narrow) {
+      return !narrow;
     },
-    // Sets array values if needed
-    _isArrayChanged: function(isArray) {
-      if (this.__internalChange) {
-        return;
-      }
-      var v = this.value;
-      if (!v || !isArray) {
-        this.arrayValue = [];
-        return;
-      }
-      this.arrayValue = this._itemsForArray(v);
-    },
-    /**
-     * The `dom-repeat` requires an object to properly support changes.
-     * In order to do this simple values has to be transformed into objects.
-     *
-     * @param {Array<String>} value An array of values.
-     */
-    _itemsForArray: function(value) {
-      var result = [];
-      if (value instanceof Array) {
-        result = value.map(function(item) {
-          return {
-            value: item
-          };
-        });
-      } else {
-        result.push({
-          value: value
-        });
-      }
-      return result;
-    },
-    // Handles array value change and sets the `value` property.
-    _arrayValueChanged: function() {
-      var arr = this.arrayValue;
-      if (arr) {
-        arr = arr.map(function(item) {
-          return item.value;
-        });
-      }
-      this.__internalChange = true;
-      this.set('value', arr);
-      this.__internalChange = false;
-    },
-    // Adds new element to the array value.
-    _addArrayValue: function() {
-      this.push('arrayValue', {value: ''});
-    },
-    // Removes item from array value.
-    _removeArrayValue: function(e) {
-      var repeater = this.$$('template[is="dom-repeat"]');
-      var index = repeater.indexForElement(e.target);
-      this.splice('arrayValue', index, 1);
-      this._arrayValueChanged();
-    },
-
-    _openDocs: function() {
+    // Toggles documentation (if available)
+    toggleDocumentation: function() {
       this.docsOpened = !this.docsOpened;
+    },
+
+    _computeLabel: function(model) {
+      if (model === undefined) {
+        model = {};
+      }
+      if (model.inputPlaceholder) {
+        model.inputLabel = model.inputPlaceholder;
+      } else {
+        model.inputLabel = 'Parameter value';
+      }
+      return model;
     }
   });
   </script>
