@@ -331,12 +331,18 @@ Custom property | Description | Default
      * Updates the `model` from current `value`.
      */
     updateModel: function(value) {
+      if (value === undefined && !this.model) {
+        return this.set('model', [this._createModelObject({}, {})]);
+      }
+      if (typeof value !== 'string' && value !== undefined) {
+        return;
+      }
       if (!value) {
         if (this.model && this.dataModel) {
           this.updateValue();
           return;
         }
-        return this.set('model', undefined);
+        return this.set('model', [this._createModelObject({}, {})]);
       }
       var arr = this.stringToArray(value);
       this.set('model', arr);
