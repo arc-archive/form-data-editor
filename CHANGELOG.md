@@ -1,3 +1,18 @@
+<a name="0.2.3"></a>
+## [0.2.3](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.1...0.2.3) (2017-12-14)
+
+
+### Fix
+
+* Supressed error when passing different than string value. ([f86eafbdbfa1b0b088382757ee9e882167c163e1](https://github.com/advanced-rest-client/form-data-editor/commit/f86eafbdbfa1b0b088382757ee9e882167c163e1))
+* Updated tests for new API ([961c2fbcd114619283d17690b408c8fd2dd6ae31](https://github.com/advanced-rest-client/form-data-editor/commit/961c2fbcd114619283d17690b408c8fd2dd6ae31))
+
+### New
+
+* Added empty default value for the model. ([80f6ffb7d32d3ce0a5376392c9bc1847ce59b268](https://github.com/advanced-rest-client/form-data-editor/commit/80f6ffb7d32d3ce0a5376392c9bc1847ce59b268))
+
+
+
 <a name="0.2.2"></a>
 ## [0.2.2](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.1...0.2.2) (2017-07-30)
 
