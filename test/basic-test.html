@@ -39,8 +39,9 @@ the License.
         element = fixture('basic');
       });
 
-      test('model is undefined', function() {
-        assert.isUndefined(element.model);
+      test('model is set by default', function() {
+        assert.typeOf(element.model, 'array');
+        assert.lengthOf(element.model, 1);
       });
 
       test('value is undefined', function() {
@@ -83,17 +84,17 @@ the License.
 
       test('Adds item to model', function() {
         element.add();
-        assert.lengthOf(element.model, 1);
+        assert.lengthOf(element.model, 2);
       });
 
       test('Added item has empty value', function() {
         element.add();
-        assert.equal(element.model[0].value, '');
+        assert.equal(element.model[1].value, '');
       });
 
       test('Added item has empty name', function() {
         element.add();
-        assert.equal(element.model[0].name, '');
+        assert.equal(element.model[1].name, '');
       });
 
       test('Added item has predefined values', function() {
@@ -101,8 +102,8 @@ the License.
           name: 'test-name',
           value: 'test-value'
         });
-        assert.equal(element.model[0].name, 'test-name', 'name equals test-name');
-        assert.equal(element.model[0].value, 'test-value', 'value equals test-value');
+        assert.equal(element.model[1].name, 'test-name', 'name equals test-name');
+        assert.equal(element.model[1].value, 'test-value', 'value equals test-value');
       });
     });
 
