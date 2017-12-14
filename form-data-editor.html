@@ -331,6 +331,9 @@ Custom property | Description | Default
      * Updates the `model` from current `value`.
      */
     updateModel: function(value) {
+      if (typeof value !== 'string') {
+        return;
+      }
       if (!value) {
         if (this.model && this.dataModel) {
           this.updateValue();
