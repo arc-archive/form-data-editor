@@ -1,7 +1,7 @@
 {
   "name": "form-data-editor",
   "description": "An element to edit form data (x-www-form-urlencoded)",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "license": "Apache-2.0 OR CC-BY-4.0",
   "authors": [
     "The Advanced REST client authors <arc@mulesoft.com>"
@@ -55,7 +55,7 @@
     "paper-item": "PolymerElements/paper-item#^1.2.1",
     "paper-listbox": "PolymerElements/paper-listbox#^1.1.2",
     "raml-js-parser": "advanced-rest-client/raml-js-parser#^2.0.0",
-    "raml-json-enhance": "advanced-rest-client/raml-json-enhance#0.x"
+    "raml-json-enhance": "advanced-rest-client/raml-json-enhance#^0.3.2"
   },
   "ignore": [
     "**/.*",
