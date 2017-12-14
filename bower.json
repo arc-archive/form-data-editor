@@ -1,7 +1,7 @@
 {
   "name": "form-data-editor",
   "description": "An element to edit form data (x-www-form-urlencoded)",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "license": "Apache-2.0 OR CC-BY-4.0",
   "authors": [
     "The Advanced REST client authors <arc@mulesoft.com>"

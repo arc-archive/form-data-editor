@@ -1,3 +1,13 @@
+<a name="0.2.4"></a>
+## [0.2.4](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.3...0.2.4) (2017-12-14)
+
+
+### Update
+
+* Updated dependency version ([c262f8a910e19a5ed745b9c3a8eec8fb36cf81b2](https://github.com/advanced-rest-client/form-data-editor/commit/c262f8a910e19a5ed745b9c3a8eec8fb36cf81b2))
+
+
+
 <a name="0.2.3"></a>
 ## [0.2.3](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.1...0.2.3) (2017-12-14)
 
