@@ -37,7 +37,8 @@
     "iron-validatable-behavior": "PolymerElements/iron-validatable-behavior#^2.1.0",
     "iron-collapse": "PolymerElements/iron-collapse#^2.2.0",
     "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.2",
-    "api-property-form-item": "advanced-rest-client/api-property-form-item#^2.0.1"
+    "api-property-form-item": "advanced-rest-client/api-property-form-item#^2.0.1",
+    "api-form-mixin": "advanced-rest-client/api-form-mixin#2.0.0-preview"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",

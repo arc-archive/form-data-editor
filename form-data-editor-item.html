@@ -129,6 +129,14 @@ Custom property | Description | Default
     </template>
   </template>
   <script>
+  class FormDataEditorItem extends Polymer.mixinBehaviors([Polymer.IronValidatableBehavior], ArcBehaviors.PayloadParserBehavior(Polymer.Element)) {
+    static get is() { return 'form-data-editor-item'; }
+    static get properties() {
+      return {
+      };
+    }
+  }
+  window.customElements.define(FormDataEditorItem.is, FormDataEditorItem);
   Polymer({
     is: 'form-data-editor-item',
 
