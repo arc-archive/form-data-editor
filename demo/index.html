@@ -7,64 +7,20 @@
   <title>form-data-editor demo</title>
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
-  <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
-  <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
-  <link rel="import" href="../../api-view-model-transformer/api-view-model-transformer.html">
-  <link rel="import" href="../form-data-editor.html">
   <custom-style>
     <style is="custom-style" include="demo-pages-shared-styles">
-    output:before {
-      content: 'Current value: '
-    }
-
-    output {
-      color: rgba(0,0,0,0.74);
-      display: block;
-      margin-top: 24px;
-    }
     </style>
   </custom-style>
 </head>
-<body unresolved>
+<body>
   <div class="vertical-section-container centered">
-    <h3>The `form-data-editor`</h3>
-    <demo-snippet>
-      <template>
-        <dom-bind>
-          <template>
-            <form-data-editor value="{{paylaod}}"></form-data-editor>
-            <output>[[paylaod]]</output>
-          </template>
-        </dom-bind>
-      </template>
-    </demo-snippet>
-
-    <h3>Narrow layout</h3>
-    <demo-snippet>
-      <template>
-        <dom-bind>
-          <template>
-            <form-data-editor value="{{paylaod}}" narrow></form-data-editor>
-            <output>[[paylaod]]</output>
-          </template>
-        </dom-bind>
-      </template>
-    </demo-snippet>
-
-    <h3>With auto-encode attribute</h3>
-    <demo-snippet>
-      <template>
-        <dom-bind>
-          <template>
-            <form-data-editor value="{{paylaod}}" auto-encode></form-data-editor>
-            <output>[[paylaod]]</output>
-          </template>
-        </dom-bind>
-      </template>
-    </demo-snippet>
-
-    <h3>With RAML type</h3>
-    <a href="raml.html">RAML demo</a>
+    <h3>Form data editor</h3>
+    <dl>
+      <dt><a href="simple.html">Basic usage</a></dt>
+      <dd>A usage as a single element</dd>
+      <dt><a href="raml.html">With RAML via AMF model</a></dt>
+      <dd>Demo page for usage with AMF model generated from RAML file.</dd>
+    </dl>
   </div>
 </body>
 </html>

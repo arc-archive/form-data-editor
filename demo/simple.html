@@ -25,14 +25,15 @@
     </style>
   </custom-style>
 </head>
-<body unresolved>
+<body>
+  <api-view-model-transformer></api-view-model-transformer>
   <div class="vertical-section-container centered">
     <h3>The `form-data-editor`</h3>
     <demo-snippet>
       <template>
         <dom-bind>
           <template>
-            <form-data-editor value="{{paylaod}}"></form-data-editor>
+            <form-data-editor value="{{paylaod}}" allow-custom allow-disable-params></form-data-editor>
             <output>[[paylaod]]</output>
           </template>
         </dom-bind>
@@ -44,27 +45,23 @@
       <template>
         <dom-bind>
           <template>
-            <form-data-editor value="{{paylaod}}" narrow></form-data-editor>
+            <form-data-editor value="{{paylaod}}" narrow allow-custom allow-disable-params></form-data-editor>
             <output>[[paylaod]]</output>
           </template>
         </dom-bind>
       </template>
     </demo-snippet>
 
-    <h3>With auto-encode attribute</h3>
+    <h3>Predefinied value</h3>
     <demo-snippet>
       <template>
         <dom-bind>
           <template>
-            <form-data-editor value="{{paylaod}}" auto-encode></form-data-editor>
-            <output>[[paylaod]]</output>
+            <form-data-editor value="grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb" allow-custom allow-disable-params></form-data-editor>
           </template>
         </dom-bind>
       </template>
     </demo-snippet>
-
-    <h3>With RAML type</h3>
-    <a href="raml.html">RAML demo</a>
   </div>
 </body>
 </html>
