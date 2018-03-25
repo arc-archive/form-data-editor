@@ -33,9 +33,20 @@ the License.
       @apply --form-data-editor-item;
     }
 
+    .custom-inputs,
+    .value-field {
+      @apply --layout-horizontal;
+      @apply --layout-start;
+    }
+
+    .narrow .custom-inputs {
+      display: block;
+    }
+
     .name-field,
     .value-field,
     .param-name,
+    .custom-inputs,
     api-property-form-item {
       @apply --layout-flex;
     }
@@ -58,7 +69,15 @@ the License.
       display: none !important;
     }
 
-    paper-icon-button {
+    .hint-icon {
+      margin-top: 16px;
+    }
+
+    .form-item.narrow {
+      @apply --layout-horizontal;
+    }
+
+    .form-item.narrow .delete-icon {
       margin-top: 16px;
     }
     </style>
@@ -72,12 +91,15 @@ the License.
         </div>
       </template>
       <template is="dom-if" if="[[isCustom]]">
-        <div class="name-field">
-          <paper-input value="{{name}}" label="Parameter name" class="param-name" no-label-float="[[noLabelFloat]]" required auto-validate></paper-input>
+        <div class="custom-inputs">
+          <div class="name-field">
+            <paper-input value="{{name}}" label="Parameter name" class="param-name" no-label-float="[[noLabelFloat]]" required auto-validate></paper-input>
+          </div>
+          <div class="value-field">
+            <api-property-form-item model="[[model]]" name="[[name]]" value="{{value}}" data-type="custom" required$="[[required]]" no-label-float="[[noLabelFloat]]"></api-property-form-item>
+          </div>
         </div>
-        <div class="value-field">
-          <api-property-form-item model="[[model]]" name="[[name]]" value="{{value}}" data-type="custom" required$="[[required]]" no-label-float="[[noLabelFloat]]"></api-property-form-item>
-        </div>
+        <paper-icon-button title="Remove parameter" class="action-icon delete-icon" icon="arc:remove-circle-outline" on-tap="_remove"></paper-icon-button>
       </template>
     </div>
     <template is="dom-if" if="[[model.hasDescription]]" restamp>
@@ -210,6 +232,15 @@ the License.
     // Toggles documentation (if available)
     toggleDocumentation() {
       this.docsOpened = !this.docsOpened;
+    }
+    /**
+     * Dispatches `remove` custom event that does not bubbles to inform the editor
+     * to delete this parameter.
+     */
+    _remove() {
+      this.dispatchEvent(new CustomEvent('remove', {
+        bubbles: false
+      }));
     }
   }
   window.customElements.define(FormDataEditorItem.is, FormDataEditorItem);
