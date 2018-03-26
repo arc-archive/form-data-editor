@@ -257,7 +257,7 @@ the License.
      * @return {String}
      */
     _computeItemClass(isCustom, narrow) {
-      let cls = 'form-item-row';
+      let cls = 'form-item form-item-row';
       if (isCustom) {
         cls += ' is-custom';
       }
@@ -294,7 +294,11 @@ the License.
       }
       params.forEach((item) => this._paramToModel(item));
     }
-
+    /**
+     * Creates a model item from parser's name => value pairs.
+     *
+     * @param {Object} param Object with `value` and `name` properties.
+     */
     _paramToModel(param) {
       const name = this.decodeQueryString(param.name);
       const value = this.decodeQueryString(param.value);
