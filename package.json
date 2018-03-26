@@ -14,7 +14,7 @@
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
   "scripts": {
-    "lint": "polymer lint form-data-editor.html",
+    "lint": "polymer lint form-data-editor.html form-data-editor-item.html",
     "test-sauce": "polymer test --plugin sauce --job-name \"form-data-editor:local-test\"",
     "test": "polymer test --plugin local",
     "update-types": "gen-typescript-declarations --deleteExisting --outDir ."
