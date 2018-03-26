@@ -26,7 +26,7 @@ AMF allows to read any API spec document (RAML, OAS by default) and produce comm
 ```
 -->
 ```html
-<form-data-editor></form-data-editor>
+<form-data-editor value="grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb" allow-custom allow-disable-params></form-data-editor>
 ```
 
 
