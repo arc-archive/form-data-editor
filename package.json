@@ -1,5 +1,5 @@
 {
-  "name": "form-data-editor",
+  "name": "@api-components/form-data-editor",
   "version": "2.0.0-preview",
   "license": "Apache-2.0",
   "description": "An element to edit form data (x-www-form-urlencoded)",
