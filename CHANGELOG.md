@@ -1,3 +1,14 @@
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.4...2.0.0) (2018-05-21)
+
+
+### Docs
+
+* updated analysis file. ([ab1bd17425a01343f8c6f66db0f263dd7fbd423b](https://github.com/advanced-rest-client/form-data-editor/commit/ab1bd17425a01343f8c6f66db0f263dd7fbd423b))
+* Updated readme file. ([eec0b2129f8c0e6aa6345b7cb45faee6219ce2f4](https://github.com/advanced-rest-client/form-data-editor/commit/eec0b2129f8c0e6aa6345b7cb45faee6219ce2f4))
+
+
+
 <a name="1.0.0"></a>
 # [1.0.0](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.4...1.0.0) (2018-03-23)
 
