@@ -1,3 +1,9 @@
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.4...1.0.0) (2018-03-23)
+
+
+
+
 <a name="0.2.5"></a>
 ## [0.2.5](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.4...0.2.5) (2017-12-14)
 
