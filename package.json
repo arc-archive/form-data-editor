@@ -1,11 +1,10 @@
 {
-  "name": "@api-components/form-data-editor",
-  "version": "2.0.0-preview",
+  "name": "@advanced-rest-client/form-data-editor",
+  "version": "2.0.0",
   "license": "Apache-2.0",
   "description": "An element to edit form data (x-www-form-urlencoded)",
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.1.1",
-    "bower": "^1.8.0"
+    "@polymer/gen-typescript-declarations": "^1.1.1"
   },
   "private": false,
   "main": "form-data-editor.html",
