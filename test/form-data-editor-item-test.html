@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+    <link rel="import" href="../form-data-editor-item.html">
+  </head>
+  <body>
+    <test-fixture id="Basic">
+      <template>
+        <form-data-editor-item></form-data-editor-item>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="Custom">
+      <template>
+        <form-data-editor-item is-custom></form-data-editor-item>
+      </template>
+    </test-fixture>
+    <script>
+    /* global MockInteractions */
+    suite('Amf items', () => {
+      test('Renders AMF model view only', (done) => {
+        const element = fixture('Basic');
+        flush(() => {
+          const customSection = element.shadowRoot.querySelector('.custom-inputs');
+          assert.notOk(customSection);
+          const input = element.shadowRoot.querySelector('api-property-form-item[data-type="typed"]');
+          assert.ok(input);
+          done();
+        });
+      });
+
+      const amfProperty = {
+        name: 'test',
+        value: 'test',
+        required: true,
+        hasDescription: true,
+        description: 'test',
+        schema: {
+          isCustom: false,
+          isInput: true
+        }
+      };
+
+      test('Renders documentation icon', (done) => {
+        const element = fixture('Basic');
+        element.model = Object.assign({}, amfProperty);
+        flush(() => {
+          const button = element.shadowRoot.querySelector('.hint-icon');
+          assert.ok(button);
+          done();
+        });
+      });
+
+      test('Documentation icon toggles documentation', (done) => {
+        const element = fixture('Basic');
+        element.model = Object.assign({}, amfProperty);
+        flush(() => {
+          const button = element.shadowRoot.querySelector('.hint-icon');
+          MockInteractions.tap(button);
+          assert.isTrue(element.docsOpened);
+          done();
+        });
+      });
+
+      test('Remove icon is not rendered for AMF items', (done) => {
+        const element = fixture('Basic');
+        element.model = Object.assign({}, amfProperty);
+        flush(() => {
+          const button = element.shadowRoot.querySelector('.delete-icon');
+          assert.notOk(button);
+          done();
+        });
+      });
+    });
+
+    suite('Custom items', () => {
+      const customProperty = {
+        name: 'test',
+        value: 'test',
+        required: true,
+        hasDescription: true,
+        description: 'test',
+        schema: {
+          isCustom: true,
+          isInput: true
+        }
+      };
+      test('Renders custom view', (done) => {
+        const element = fixture('Custom');
+        flush(() => {
+          const customSection = element.shadowRoot.querySelector('.custom-inputs');
+          assert.ok(customSection);
+          const input = element.shadowRoot.querySelector('api-property-form-item[data-type="typed"]');
+          assert.notOk(input);
+          done();
+        });
+      });
+
+      test('Remove icon is rendered', (done) => {
+        const element = fixture('Custom');
+        element.model = Object.assign({}, customProperty);
+        flush(() => {
+          const button = element.shadowRoot.querySelector('.delete-icon');
+          assert.ok(button);
+          done();
+        });
+      });
+    });
+    </script>
+  </body>
+</html>

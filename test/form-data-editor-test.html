@@ -1,0 +1,217 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+    <link rel="import" href="../form-data-editor.html">
+  </head>
+  <body>
+    <test-fixture id="Basic">
+      <template>
+        <form-data-editor></form-data-editor>
+      </template>
+    </test-fixture>
+    <test-fixture id="CustomAction">
+      <template>
+        <form-data-editor allow-custom></form-data-editor>
+      </template>
+    </test-fixture>
+    <test-fixture id="AllowDisable">
+      <template>
+        <form-data-editor allow-disable-params></form-data-editor>
+      </template>
+    </test-fixture>
+    <test-fixture id="AllowOptional">
+      <template>
+        <form-data-editor allow-hide-optional></form-data-editor>
+      </template>
+    </test-fixture>
+    <script>
+    /* global MockInteractions */
+    suite('basic', () => {
+      test('value is undefined', () => {
+        const element = fixture('Basic');
+        assert.isUndefined(element.value);
+      });
+
+      test('Add parameter is not rendered by default', () => {
+        const element = fixture('Basic');
+        const button = element.shadowRoot.querySelector('.add-action');
+        assert.notOk(button);
+      });
+
+      test('Add parameter rendered when allow-custom', (done) => {
+        const element = fixture('CustomAction');
+        flush(() => {
+          const button = element.shadowRoot.querySelector('.add-action');
+          assert.ok(button);
+          done();
+        });
+      });
+
+      test('Enable property is not rendered by default', () => {
+        const element = fixture('AllowDisable');
+        const button = element.shadowRoot.querySelector('.enable-checkbox');
+        assert.notOk(button);
+      });
+
+      test('Enable property rendered when allow-disable-params', (done) => {
+        const element = fixture('AllowDisable');
+        element.model = [{
+          name: 'name',
+          value: 'value',
+          schema: {}
+        }];
+        flush(() => {
+          const button = element.shadowRoot.querySelector('.enable-checkbox');
+          assert.ok(button);
+          done();
+        });
+      });
+
+      test('Optional checkbox is not rendered by default', () => {
+        const element = fixture('AllowOptional');
+        const button = element.shadowRoot.querySelector('.toggle-checkbox');
+        assert.notOk(button);
+      });
+
+      test('Optional is rendered when model has optional item', () => {
+        const element = fixture('AllowOptional');
+        element.model = [{
+          name: 'name',
+          value: 'value',
+          required: false,
+          schema: {}
+        }];
+        const button = element.shadowRoot.querySelector('.toggle-checkbox');
+        assert.notOk(button);
+      });
+    });
+
+    suite('add()', () => {
+      let element;
+      setup(() => {
+        element = fixture('CustomAction');
+      });
+
+      test('Adds item to model', () => {
+        element.add();
+        assert.lengthOf(element.model, 1);
+      });
+
+      test('Added item has empty value', () => {
+        element.add();
+        assert.equal(element.model[0].value, '');
+      });
+
+      test('Added item has empty name', () => {
+        element.add();
+        assert.equal(element.model[0].name, '');
+      });
+
+      test('Add button is connected to the action', (done) => {
+        flush(() => {
+          const button = element.shadowRoot.querySelector('.add-action .action-button');
+          MockInteractions.tap(button);
+          assert.lengthOf(element.model, 1);
+          done();
+        });
+      });
+    });
+
+    suite('_encodePaylod()', () => {
+      let element;
+      const TEST_VALUE = 'x test=x value';
+
+      setup(() => {
+        element = fixture('Basic');
+        element.value = TEST_VALUE;
+        element._encodePaylod();
+      });
+
+      test('Encodes value', () => {
+        assert.equal(element.value, 'x+test=x+value');
+      });
+
+      test('Encodes model value', () => {
+        assert.equal(element.model[0].value, 'x+value');
+      });
+
+      test('Encodes model value name', () => {
+        assert.equal(element.model[0].name, 'x+test');
+      });
+    });
+
+    suite('_decodePaylod()', () => {
+      let element;
+      const TEST_VALUE = 'x+test=x+value';
+
+      setup(() => {
+        element = fixture('Basic');
+        element.value = TEST_VALUE;
+        element._decodePaylod();
+      });
+
+      test('Decodes value', () => {
+        assert.equal(element.value, 'x test=x value');
+      });
+
+      test('Decodes model value', () => {
+        assert.equal(element.model[0].value, 'x value');
+      });
+
+      test('Decodes model value name', () => {
+        assert.equal(element.model[0].name, 'x test');
+      });
+    });
+
+    suite('_valueChanged()', () => {
+      let element;
+      const TEST_VALUE = 'x+test=x+value&param=value';
+
+      setup(() => {
+        element = fixture('Basic');
+        element._valueChanged(TEST_VALUE);
+      });
+
+      test('Creates model array', () => {
+        assert.typeOf(element.model, 'array');
+      });
+
+      test('Model has 2 items', () => {
+        assert.lengthOf(element.model, 2);
+      });
+
+      test('Generates items in order', () => {
+        assert.equal(element.model[0].name, 'x test');
+        assert.equal(element.model[1].name, 'param');
+      });
+
+      test('Model has valid values', () => {
+        assert.equal(element.model[0].value, 'x value');
+        assert.equal(element.model[1].value, 'value');
+      });
+    });
+
+    suite('Removing parameter', () => {
+      let element;
+      setup((done) => {
+        element = fixture('Basic');
+        element.value = 'x+test=x+value';
+        flush(() => done());
+      });
+
+      test('Removes item from the event', () => {
+        const item = element.shadowRoot.querySelector('form-data-editor-item');
+        item.dispatchEvent(new CustomEvent('remove'));
+        assert.lengthOf(element.model, 0);
+        assert.equal(element.value, '');
+      });
+    });
+    </script>
+
+  </body>
+</html>

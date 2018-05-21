@@ -1,22 +1,22 @@
 {
-  "name": "form-data-editor",
-  "version": "1.0.0",
-  "license": "Apache-2.0 OR CC-BY-4.0",
+  "name": "@advanced-rest-client/form-data-editor",
+  "version": "2.0.0",
+  "license": "Apache-2.0",
   "description": "An element to edit form data (x-www-form-urlencoded)",
   "devDependencies": {
-    "polymer-cli": "^1.2.0"
+    "@polymer/gen-typescript-declarations": "^1.1.1"
   },
-  "main": [
-    "form-data-editor.html"
+  "private": false,
+  "main": "form-data-editor.html",
+  "authors": [
+    "pawel Psztyc",
+    "The Advanced REST client authors <arc@mulesoft.com>"
   ],
-  "author": "The Advanced REST client authors <arc@mulesoft.com>",
   "scripts": {
-    "serve": "node_modules/.bin/polymer serve",
-    "lint": "node_modules/.bin/polymer lint form-data-editor.html --rules polymer-1",
-    "test-sauce": "node_modules/.bin/polymer test --plugin sauce --job-name \"form-data-editor:local-test\"",
-    "test": "node_modules/.bin/polymer test --plugin local",
-    "deps": "npm install --quiet && bower install --quiet",
-    "update-deps": "npm update --quiet && bower update --quiet"
+    "lint": "polymer lint form-data-editor.html form-data-editor-item.html",
+    "test-sauce": "polymer test --plugin sauce --job-name \"form-data-editor:local-test\"",
+    "test": "polymer test --plugin local",
+    "update-types": "gen-typescript-declarations --deleteExisting --outDir ."
   },
   "repository": {
     "type": "git",
