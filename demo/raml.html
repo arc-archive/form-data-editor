@@ -14,6 +14,7 @@
   <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
   <link rel="import" href="../../api-view-model-transformer/api-view-model-transformer.html">
   <link rel="import" href="../../neon-animation/web-animations.html">
+  <link rel="import" href="../../api-navigation/api-navigation.html">
   <link rel="import" href="../form-data-editor.html">
 
   <custom-style>
@@ -47,6 +48,20 @@
         padding: 24px;
         margin-bottom: 40px;
       }
+
+      api-navigation {
+        width: 320px;
+        min-width: 320px;
+        overflow: auto;
+      }
+
+      .centered {
+        max-width: 1200px;
+      }
+
+      .content {
+        @apply --layout-flex;
+      }
     </style>
   </custom-style>
 </head>
@@ -55,127 +70,116 @@
     <template is="dom-bind">
       <header>
         <paper-dropdown-menu label="Select demo endpoint">
-          <paper-listbox slot="dropdown-content" id="enpointsList" selected="{{selectedEndpointIndex}}" on-selected-changed="_endpointChanged">
-            <template is="dom-repeat" items="[[endpoints]]">
-              <paper-item>[[item]]</paper-item>
-            </template>
+          <paper-listbox slot="dropdown-content" id="apisList" on-selected-changed="_apiChanged">
+            <paper-item data-src="demo-api.json">Demo api</paper-item>
+            <paper-item data-src="demo-api-compact.json">Demo api - compact model</paper-item>
           </paper-listbox>
         </paper-dropdown-menu>
 
-        <paper-dropdown-menu label="Select endpoint's method">
-          <paper-listbox slot="dropdown-content" selected="{{selectedShape}}" on-selected-changed="_methodChanged">
-            <template is="dom-repeat" items="[[operations]]">
-              <paper-item>[[item.label]]</paper-item>
-            </template>
-          </paper-listbox>
-        </paper-dropdown-menu>
-
-        <paper-dropdown-menu label="Select payload media type">
-          <paper-listbox slot="dropdown-content" selected="{{selectedMediaType}}" on-selected-changed="_mediaChangedChanged" attr-for-selected="data-id">
-            <template is="dom-repeat" items="[[payloadOptions]]">
-              <paper-item data-id$="[[item.id]]">[[item.label]]</paper-item>
+        <paper-dropdown-menu label="Select media type" disabled id="mediaDropdown">
+          <paper-listbox slot="dropdown-content" id="mediaList" on-selected-changed="_mediaTypeChanged">
+            <template is="dom-repeat" items="[[mediaTypes]]">
+              <paper-item data-type$="[[item]]">[[item]]</paper-item>
             </template>
           </paper-listbox>
         </paper-dropdown-menu>
       </header>
-      <section role="main" class="vertical-section-container centered main">
-        <api-view-model-transformer id="transformer"></api-view-model-transformer>
-        <form-data-editor model="[[dataViewModel]]" narrow="[[narrow]]" allow-custom allow-disable-params allow-hide-optional value="{{value}}"></form-data-editor>
-        <output>[[value]]</output>
-      </section>
 
-      <section class="vertical-section-container centered">
-        <paper-checkbox checked="{{narrow}}">Render narrow view</paper-checkbox>
-      </section>
+      <div class="horizontal-section-container centered">
+        <api-navigation amf-model="[[amfModel]]" endpoints-opened></api-navigation>
+
+        <div class="content">
+          <section role="main" class="vertical-section-container centered main">
+            <api-view-model-transformer id="transformer"></api-view-model-transformer>
+            <form-data-editor model="[[dataViewModel]]" narrow="[[narrow]]" allow-custom allow-disable-params allow-hide-optional value="{{value}}"></form-data-editor>
+            <output>[[value]]</output>
+          </section>
+
+          <section class="vertical-section-container centered">
+            <paper-checkbox checked="{{narrow}}">Render narrow view</paper-checkbox>
+          </section>
+        </div>
+      </div>
+
+      <demo-element id="helper" amf-model="{{amfModel}}"></demo-element>
     </template>
   </dom-bind>
   <script>
     (function(app) {
       app._load = function() {
-        fetch('./amf-model.json')
+        class DemoElement extends ApiElements.AmfHelperMixin(Polymer.Element) {}
+        window.customElements.define('demo-element', DemoElement);
+        document.getElementById('apisList').selected = 0;
+      };
+
+      app._loadFile = function(file) {
+        fetch('./' + file)
         .then((response) => response.json())
         .then((data) => {
           app.amfModel = data;
-          app._setEndpointsList(data);
         });
       };
-      app._getAmfValue = function(model) {
-        if (!model || !(model instanceof Array) || !model[0]) {
+
+      app._apiChanged = function(e) {
+        const file = e.target.selectedItem.dataset.src;
+        app._loadFile(file);
+      };
+
+      app._navChanged = function(e) {
+        if (e.detail.passive) {
           return;
         }
-        return model[0]['@value'];
+        const type = e.detail.type;
+        if (type === 'method') {
+          app.setData(e.detail.selected);
+          app.hasData = true;
+        } else {
+          app.hasData = false;
+        }
       };
-      app._setEndpointsList = function(data) {
-        data = data[0]['http://raml.org/vocabularies/document#encodes'][0];
-        const endpoints = data['http://raml.org/vocabularies/http#endpoint'];
-        const list = endpoints.map((item) => {
-          return app._getAmfValue(item['http://raml.org/vocabularies/http#path']);
+
+      app.setData = function(id) {
+        document.getElementById('mediaList').selected = undefined;
+        const webApi = app.$.helper._computeWebApi(app.amfModel);
+        const method = app.$.helper._computeMethodModel(webApi, id);
+        const expect = app.$.helper._computeExpects(method);
+        const payloads = app.$.helper._computePayload(expect);
+        app.payloads = payloads;
+        app.setupMediaTypes(payloads);
+      };
+
+      app.setupMediaTypes = function(payloads) {
+        const ns = ApiElements.Amf.ns;
+        const types = payloads.map((item) => {
+          return app.$.helper._getValue(item, ns.raml.vocabularies.http + 'mediaType');
         });
-        app.endpoints = list;
+        app.mediaTypes = types;
+        const dropdown = document.getElementById('mediaDropdown');
+        if (dropdown.hasAttribute('disabled')) {
+          dropdown.removeAttribute('disabled');
+        }
+        if (types && types.length === 1) {
+          document.getElementById('mediaList').selected = 0;
+        }
       };
-      app._endpointChanged = function(e) {
-        const index = e.detail.value;
-        app._computeOperations(index);
-      };
-      app._computeOperations = function(index) {
-        let data = app.amfModel[0]['http://raml.org/vocabularies/document#encodes'][0];
-        data = data['http://raml.org/vocabularies/http#endpoint'][index];
-        const operations = data['http://www.w3.org/ns/hydra/core#supportedOperation'];
-        if (!operations) {
-          app.selectedShape = -1;
+
+      app._mediaTypeChanged = function(e) {
+        const ns = ApiElements.Amf.ns;
+        const payload = app.payloads[e.detail.value];
+        if (!payload) {
           return;
         }
-        const list = [];
-        operations.forEach((item) => {
-          if (item['http://www.w3.org/ns/hydra/core#method'][0]['@value'] === 'get') {
-            return;
-          }
-          list.push({
-            id: item['@id'],
-            label: app._getAmfValue(item['http://www.w3.org/ns/hydra/core#method'])
-          });
-        });
-        app.selectedShape = -1;
-        app.operations = list;
-        app.selectedShape = 0;
-        setTimeout(() => app._methodChanged(), 100);
+        const key = app.$.helper._getAmfKey(ns.raml.vocabularies.http + 'schema');
+        let schema = app.$.helper._ensureArray(payload[key])[0];
+        schema = app.$.helper._resolve(schema);
+        const pKey = app.$.helper._getAmfKey(ns.w3.shacl.name + 'property');
+        const properties = app.$.helper._ensureArray(schema[pKey]);
+        const tr = document.getElementById('transformer');
+        tr.amfModel = app.amfModel;
+        const model = tr.computeViewModel(properties);
+        app.dataViewModel = model;
       };
-      app._computeApiParams = function(apiPrams) {
-        if (!apiPrams) {
-          return 'none';
-        }
-        return JSON.stringify(apiPrams, null, 1);
-      };
-      app._methodChanged = function() {
-        app.selectedMediaType = -1;
-        app.payloads = undefined;
-        app.payloadOptions = undefined;
-        if (app.selectedShape === undefined || app.selectedShape === -1) {
-          return;
-        }
-        let data = app.amfModel[0]['http://raml.org/vocabularies/document#encodes'][0];
-        data = data['http://raml.org/vocabularies/http#endpoint'][app.selectedEndpointIndex];
-        data = data['http://www.w3.org/ns/hydra/core#supportedOperation'][app.selectedShape];
-        data = data['http://www.w3.org/ns/hydra/core#expects'][0];
-        data = data['http://raml.org/vocabularies/http#payload'];
-        app.payloads = data;
-        app.payloadOptions = data.map((item) => {
-          return {
-            label: item['http://raml.org/vocabularies/http#mediaType'][0]['@value'],
-            id: item['@id']
-          };
-        });
-        app.selectedMediaType = app.payloadOptions[0].id;
-        setTimeout(() => app._mediaChangedChanged(), 100);
-      };
-      app._mediaChangedChanged = function(e) {
-        const id = e && e.detail.value || app.selectedMediaType;
-        const payload = app.payloads.find((item) => item['@id'] === id);
-        const schema = payload['http://raml.org/vocabularies/http#schema'][0];
-        const properties = schema['http://www.w3.org/ns/shacl#property'];
-        document.getElementById('transformer').computeViewModel(properties)
-        .then((model) => app.dataViewModel = model);
-      };
+      window.addEventListener('api-navigation-selection-changed', app._navChanged);
       window.addEventListener('WebComponentsReady', () => app._load());
     })(document.getElementById('demo'));
   </script>

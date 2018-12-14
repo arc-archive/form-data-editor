@@ -4,7 +4,8 @@
   "license": "Apache-2.0",
   "description": "An element to edit form data (x-www-form-urlencoded)",
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.1.1"
+    "@polymer/gen-typescript-declarations": "^1.5.1",
+    "@api-components/api-model-generator": "^0.1.5"
   },
   "private": false,
   "main": "form-data-editor.html",

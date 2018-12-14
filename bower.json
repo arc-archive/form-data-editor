@@ -50,7 +50,8 @@
     "paper-item": "PolymerElements/paper-item#^2.1.0",
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.1.0",
     "web-animations-js": "web-animations/web-animations-js#^2.2.0",
-    "api-view-model-transformer": "advanced-rest-client/api-view-model-transformer#^2.0.0"
+    "api-view-model-transformer": "advanced-rest-client/api-view-model-transformer#^2.0.0",
+    "api-navigation": "advanced-rest-client/api-navigation#^2.0.0"
   },
   "ignore": [
     "**/.*",
