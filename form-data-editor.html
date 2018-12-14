@@ -83,7 +83,7 @@ the License.
     <iron-form>
       <form enctype="application/json">
         <template is="dom-repeat" items="{{model}}">
-          <div class$="[[_computeItemClass(item.schema.isCustom, narrow)]]" data-optional$="[[computeIsOptional(hasOptional, item.model.required)]]">
+          <div class$="[[_computeItemClass(item, narrow, allowHideOptional, optionalOpened, allowDisableParams)]]" data-optional$="[[computeIsOptional(hasOptional, item)]]">
             <template is="dom-if" if="[[allowDisableParams]]">
               <paper-checkbox class="enable-checkbox" checked="{{item.schema.enabled}}" title="Enable/disable this header"></paper-checkbox>
             </template>
@@ -184,8 +184,12 @@ the License.
    * @appliesMixin ArcBehaviors.ApiFormMixin
    * @appliesMixin ArcBehaviors.PayloadParserBehavior
    */
-  class FormDataEditor extends Polymer.mixinBehaviors([Polymer.IronValidatableBehavior], ArcBehaviors.ApiFormMixin(ArcBehaviors.PayloadParserBehavior(Polymer.Element))) {
-    static get is() { return 'form-data-editor'; }
+  class FormDataEditor extends
+    Polymer.mixinBehaviors([Polymer.IronValidatableBehavior],
+      ArcBehaviors.ApiFormMixin(ArcBehaviors.PayloadParserBehavior(Polymer.Element))) {
+    static get is() {
+      return 'form-data-editor';
+    }
     static get properties() {
       return {
         value: {
@@ -252,13 +256,17 @@ the License.
     /**
      * Computes for item class.
      *
-     * @param {Boolean} isCustom
+     * @param {Object} item Model for form item
      * @param {Boolean} narrow
+     * @param {Boolean} allowHideOptional
+     * @param {Boolean} optionalOpened
+     * @param {Boolean} allowDisableParams
      * @return {String}
      */
-    _computeItemClass(isCustom, narrow) {
-      let cls = 'form-item form-item-row';
-      if (isCustom) {
+    _computeItemClass(item, narrow, allowHideOptional, optionalOpened, allowDisableParams) {
+      let cls = 'form-item form-item-row ';
+      cls += this.computeFormRowClass(item, allowHideOptional, optionalOpened, allowDisableParams);
+      if (item && item.schema.isCustom) {
         cls += ' is-custom';
       }
       if (narrow) {
@@ -272,7 +280,7 @@ the License.
      * @param {Array} model Current model
      */
     _updateValue(model) {
-      const hasModel = model && model.length;
+      const hasModel = !!(model && model.length);
       const value = hasModel ? this.formArrayToString(model) : '';
       this.__internalChange = true;
       this.set('value', value);
