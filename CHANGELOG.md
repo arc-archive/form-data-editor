@@ -1,3 +1,18 @@
+<a name="2.0.1"></a>
+## [2.0.1](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.4...2.0.1) (2018-12-15)
+
+
+### Docs
+
+* updated analysis file. ([ab1bd17425a01343f8c6f66db0f263dd7fbd423b](https://github.com/advanced-rest-client/form-data-editor/commit/ab1bd17425a01343f8c6f66db0f263dd7fbd423b))
+* Updated readme file. ([eec0b2129f8c0e6aa6345b7cb45faee6219ce2f4](https://github.com/advanced-rest-client/form-data-editor/commit/eec0b2129f8c0e6aa6345b7cb45faee6219ce2f4))
+
+### Fix
+
+* Fixing issue with hidden required properties. ([63a3af78fcb9a81b35af7c35c838acd60be1f164](https://github.com/advanced-rest-client/form-data-editor/commit/63a3af78fcb9a81b35af7c35c838acd60be1f164))
+
+
+
 <a name="2.0.0"></a>
 # [2.0.0](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.4...2.0.0) (2018-05-21)
 
