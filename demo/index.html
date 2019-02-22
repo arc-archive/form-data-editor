@@ -7,30 +7,14 @@
   <title>form-data-editor demo</title>
   <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
   <script type="module" src="../../../@polymer/iron-demo-helpers/demo-pages-shared-styles.js"></script>
-  <!-- FIXME(polymer-modulizer):
-        These imperative modules that innerHTML your HTML are
-        a hacky way to be sure that any mixins in included style
-        modules are ready before any elements that reference them are
-        instantiated, otherwise the CSS @apply mixin polyfill won't be
-        able to expand the underlying CSS custom properties.
-        See: https://github.com/Polymer/polymer-modulizer/issues/154
-        -->
-    <script type="module">
-const $_documentContainer = document.createElement('template');
-
-$_documentContainer.innerHTML = `<custom-style>
+  <custom-style>
     <style is="custom-style" include="demo-pages-shared-styles">
     </style>
-  </custom-style>`;
-
-document.body.appendChild($_documentContainer.content);
+  </custom-style>
 </script>
 </head>
 <body>
-  <script type="module">
-const $_documentContainer = document.createElement('template');
-
-$_documentContainer.innerHTML = `<div class="vertical-section-container centered">
+  <div class="vertical-section-container centered">
     <h3>Form data editor</h3>
     <dl>
       <dt><a href="simple.html">Basic usage</a></dt>
@@ -38,9 +22,6 @@ $_documentContainer.innerHTML = `<div class="vertical-section-container centered
       <dt><a href="raml.html">With RAML via AMF model</a></dt>
       <dd>Demo page for usage with AMF model generated from RAML file.</dd>
     </dl>
-  </div>`;
-
-document.body.appendChild($_documentContainer.content);
-</script>
+  </div>
 </body>
 </html>

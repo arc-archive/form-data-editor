@@ -1,6 +1,6 @@
 /**
 @license
-Copyright 2016 The Advanced REST client authors <arc@mulesoft.com>
+Copyright 2019 The Advanced REST client authors <arc@mulesoft.com>
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
 the License at
@@ -11,23 +11,22 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import { PolymerElement } from '../../@polymer/polymer/polymer-element.js';
-
-import '../../@polymer/polymer/lib/elements/dom-repeat.js';
-import '../../@polymer/polymer/lib/elements/dom-if.js';
-import '../../arc-icons/arc-icons.js';
-import '../../@polymer/iron-form/iron-form.js';
-import '../../@polymer/iron-flex-layout/iron-flex-layout.js';
-import '../../@polymer/paper-button/paper-button.js';
-import '../../@polymer/paper-icon-button/paper-icon-button.js';
-import '../../payload-parser-behavior/payload-parser-behavior.js';
-import { IronValidatableBehavior } from '../../@polymer/iron-validatable-behavior/iron-validatable-behavior.js';
-import '../../@polymer/paper-checkbox/paper-checkbox.js';
-import '../../api-form-mixin/api-form-mixin.js';
-import '../../api-form-mixin/api-form-styles.js';
+import {PolymerElement} from '@polymer/polymer/polymer-element.js';
+import {IronValidatableBehavior} from '@polymer/iron-validatable-behavior/iron-validatable-behavior.js';
+import {PayloadParserMixin} from '@advanced-rest-client/payload-parser-mixin/payload-parser-mixin.js';
+import {ApiFormMixin} from '@api-components/api-form-mixin/api-form-mixin.js';
+import {html} from '@polymer/polymer/lib/utils/html-tag.js';
+import {mixinBehaviors} from '@polymer/polymer/lib/legacy/class.js';
+import '@polymer/polymer/lib/elements/dom-repeat.js';
+import '@polymer/polymer/lib/elements/dom-if.js';
+import '@advanced-rest-client/arc-icons/arc-icons.js';
+import '@polymer/iron-form/iron-form.js';
+import '@polymer/iron-flex-layout/iron-flex-layout.js';
+import '@polymer/paper-button/paper-button.js';
+import '@polymer/paper-icon-button/paper-icon-button.js';
+import '@polymer/paper-checkbox/paper-checkbox.js';
+import '@api-components/api-form-mixin/api-form-styles.js';
 import './form-data-editor-item.js';
-import { html } from '../../@polymer/polymer/lib/utils/html-tag.js';
-import { mixinBehaviors } from '../../@polymer/polymer/lib/legacy/class.js';
 /**
  * An element to edit form data (x-www-form-urlencoded).
  *
@@ -106,13 +105,14 @@ import { mixinBehaviors } from '../../@polymer/polymer/lib/legacy/class.js';
  * @polymer
  * @demo demo/simple.html Simple usage
  * @demo demo/raml.html With AMF model from RAML file
- * @appliesMixin Polymer.IronValidatableBehavior
- * @appliesMixin ArcBehaviors.ApiFormMixin
- * @appliesMixin ArcBehaviors.PayloadParserBehavior
+ * @polymerBehavior Polymer.IronValidatableBehavior
+ * @appliesMixin ApiFormMixin
+ * @appliesMixin PayloadParserBehavior
+ * @memberof UiElements
  */
 class FormDataEditor extends
   mixinBehaviors([IronValidatableBehavior],
-    ArcBehaviors.ApiFormMixin(ArcBehaviors.PayloadParserBehavior(PolymerElement))) {
+    ApiFormMixin(PayloadParserMixin(PolymerElement))) {
   static get template() {
     return html`
     <style include="api-form-styles">
@@ -159,29 +159,37 @@ class FormDataEditor extends
     }
     </style>
     <div class="option-pane">
-      <paper-button title="Encodes payload to x-www-form-urlencoded data" on-tap="_encodePaylod">Encode payload</paper-button>
-      <paper-button title="Decodes payload to human readable form" on-tap="_decodePaylod">Decode payload</paper-button>
+      <paper-button title="Encodes payload to x-www-form-urlencoded data"
+        on-click="_encodePaylod">Encode payload</paper-button>
+      <paper-button title="Decodes payload to human readable form"
+        on-click="_decodePaylod">Decode payload</paper-button>
       <template is="dom-if" if="[[renderOptionalCheckbox]]">
         <div class="optional-checkbox">
-          <paper-checkbox class="toggle-checkbox" checked="{{optionalOpened}}" title="Shows or hides optional properties">Show optional properties</paper-checkbox>
+          <paper-checkbox class="toggle-checkbox" checked="{{optionalOpened}}"
+            title="Shows or hides optional properties">Show optional properties</paper-checkbox>
         </div>
       </template>
     </div>
     <iron-form>
       <form enctype="application/json">
         <template is="dom-repeat" items="{{model}}">
-          <div class\$="[[_computeItemClass(item, narrow, allowHideOptional, optionalOpened, allowDisableParams)]]" data-optional\$="[[computeIsOptional(hasOptional, item)]]">
+          <div class\$="[[_computeItemClass(item, narrow, allowHideOptional, optionalOpened, allowDisableParams)]]"
+            data-optional\$="[[computeIsOptional(hasOptional, item)]]">
             <template is="dom-if" if="[[allowDisableParams]]">
-              <paper-checkbox class="enable-checkbox" checked="{{item.schema.enabled}}" title="Enable/disable this header"></paper-checkbox>
+              <paper-checkbox class="enable-checkbox" checked="{{item.schema.enabled}}"
+                title="Enable/disable this header"></paper-checkbox>
             </template>
-            <form-data-editor-item narrow="[[narrow]]" name="{{item.name}}" value="{{item.value}}" model="[[item]]" required\$="[[item.required]]" is-custom="[[item.schema.isCustom]]" is-array="[[item.schema.isArray]]" no-label-float="" on-remove="_removeCustom"></form-data-editor-item>
+            <form-data-editor-item narrow="[[narrow]]" name="{{item.name}}"
+              value="{{item.value}}" model="[[item]]" required\$="[[item.required]]"
+              is-custom="[[item.schema.isCustom]]" is-array="[[item.schema.isArray]]"
+              no-label-float="" on-remove="_removeCustom"></form-data-editor-item>
           </div>
         </template>
       </form>
     </iron-form>
     <template is="dom-if" if="[[allowCustom]]">
       <div class="add-action">
-        <paper-button class="action-button" on-tap="add" title="Adds empty parameter to the form">
+        <paper-button class="action-button" on-click="add" title="Adds empty parameter to the form">
           <iron-icon class="action-icon" icon="arc:add-circle-outline" alt="Add parameter icon"></iron-icon>
           Add parameter
         </paper-button>
