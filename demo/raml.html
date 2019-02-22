@@ -5,19 +5,30 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
   <title>form-data-editor demo</title>
-  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="../../polymer/lib/elements/dom-bind.html">
-  <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
-  <link rel="import" href="../../paper-dropdown-menu/paper-dropdown-menu.html">
-  <link rel="import" href="../../paper-item/paper-item.html">
-  <link rel="import" href="../../paper-listbox/paper-listbox.html">
-  <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
-  <link rel="import" href="../../api-view-model-transformer/api-view-model-transformer.html">
-  <link rel="import" href="../../neon-animation/web-animations.html">
-  <link rel="import" href="../../api-navigation/api-navigation.html">
-  <link rel="import" href="../form-data-editor.html">
+  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+  <script type="module" src="../../../@polymer/polymer/lib/elements/dom-bind.js"></script>
+  <script type="module" src="../../../@polymer/iron-demo-helpers/demo-pages-shared-styles.js"></script>
+  <script type="module" src="../../../@polymer/paper-dropdown-menu/paper-dropdown-menu.js"></script>
+  <script type="module" src="../../../@polymer/paper-item/paper-item.js"></script>
+  <script type="module" src="../../../@polymer/paper-listbox/paper-listbox.js"></script>
+  <script type="module" src="../../../@polymer/paper-checkbox/paper-checkbox.js"></script>
+  <script type="module" src="../../../api-view-model-transformer/api-view-model-transformer.js"></script>
+  <script type="module" src="../../../@polymer/neon-animation/web-animations.js"></script>
+  <script type="module" src="../../../api-navigation/api-navigation.js"></script>
+  <script type="module" src="../form-data-editor.js"></script>
 
-  <custom-style>
+  <!-- FIXME(polymer-modulizer):
+        These imperative modules that innerHTML your HTML are
+        a hacky way to be sure that any mixins in included style
+        modules are ready before any elements that reference them are
+        instantiated, otherwise the CSS @apply mixin polyfill won't be
+        able to expand the underlying CSS custom properties.
+        See: https://github.com/Polymer/polymer-modulizer/issues/154
+        -->
+    <script type="module">
+const $_documentContainer = document.createElement('template');
+
+$_documentContainer.innerHTML = `<custom-style>
     <style is="custom-style" include="demo-pages-shared-styles">
       html,
       body {
@@ -63,10 +74,16 @@
         @apply --layout-flex;
       }
     </style>
-  </custom-style>
+  </custom-style>`;
+
+document.body.appendChild($_documentContainer.content);
+</script>
 </head>
 <body>
-  <dom-bind id="demo">
+  <script type="module">
+const $_documentContainer = document.createElement('template');
+
+$_documentContainer.innerHTML = `<dom-bind id="demo">
     <template is="dom-bind">
       <header>
         <paper-dropdown-menu label="Select demo endpoint">
@@ -76,22 +93,22 @@
           </paper-listbox>
         </paper-dropdown-menu>
 
-        <paper-dropdown-menu label="Select media type" disabled id="mediaDropdown">
+        <paper-dropdown-menu label="Select media type" disabled="" id="mediaDropdown">
           <paper-listbox slot="dropdown-content" id="mediaList" on-selected-changed="_mediaTypeChanged">
             <template is="dom-repeat" items="[[mediaTypes]]">
-              <paper-item data-type$="[[item]]">[[item]]</paper-item>
+              <paper-item data-type\$="[[item]]">[[item]]</paper-item>
             </template>
           </paper-listbox>
         </paper-dropdown-menu>
       </header>
 
       <div class="horizontal-section-container centered">
-        <api-navigation amf-model="[[amfModel]]" endpoints-opened></api-navigation>
+        <api-navigation amf-model="[[amfModel]]" endpoints-opened=""></api-navigation>
 
         <div class="content">
           <section role="main" class="vertical-section-container centered main">
             <api-view-model-transformer id="transformer"></api-view-model-transformer>
-            <form-data-editor model="[[dataViewModel]]" narrow="[[narrow]]" allow-custom allow-disable-params allow-hide-optional value="{{value}}"></form-data-editor>
+            <form-data-editor model="[[dataViewModel]]" narrow="[[narrow]]" allow-custom="" allow-disable-params="" allow-hide-optional="" value="{{value}}"></form-data-editor>
             <output>[[value]]</output>
           </section>
 
@@ -103,85 +120,99 @@
 
       <demo-element id="helper" amf-model="{{amfModel}}"></demo-element>
     </template>
-  </dom-bind>
-  <script>
-    (function(app) {
-      app._load = function() {
-        class DemoElement extends ApiElements.AmfHelperMixin(Polymer.Element) {}
-        window.customElements.define('demo-element', DemoElement);
-        document.getElementById('apisList').selected = 0;
-      };
+  </dom-bind>`;
 
-      app._loadFile = function(file) {
-        fetch('./' + file)
-        .then((response) => response.json())
-        .then((data) => {
-          app.amfModel = data;
-        });
-      };
+document.body.appendChild($_documentContainer.content);
+</script>
+  <script type="module">
+import '../../../@polymer/polymer/lib/elements/dom-bind.js';
+import '../../../@polymer/iron-demo-helpers/demo-pages-shared-styles.js';
+import '../../../@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
+import '../../../@polymer/paper-item/paper-item.js';
+import '../../../@polymer/paper-listbox/paper-listbox.js';
+import '../../../@polymer/paper-checkbox/paper-checkbox.js';
+import '../../../api-view-model-transformer/api-view-model-transformer.js';
+import '../../../@polymer/neon-animation/web-animations.js';
+import '../../../api-navigation/api-navigation.js';
+import '../form-data-editor.js';
+import { PolymerElement } from '../../../@polymer/polymer/polymer-element.js';
+(function(app) {
+  app._load = function() {
+    class DemoElement extends ApiElements.AmfHelperMixin(PolymerElement) {}
+    window.customElements.define('demo-element', DemoElement);
+    document.getElementById('apisList').selected = 0;
+  };
 
-      app._apiChanged = function(e) {
-        const file = e.target.selectedItem.dataset.src;
-        app._loadFile(file);
-      };
+  app._loadFile = function(file) {
+    fetch('./' + file)
+    .then((response) => response.json())
+    .then((data) => {
+      app.amfModel = data;
+    });
+  };
 
-      app._navChanged = function(e) {
-        if (e.detail.passive) {
-          return;
-        }
-        const type = e.detail.type;
-        if (type === 'method') {
-          app.setData(e.detail.selected);
-          app.hasData = true;
-        } else {
-          app.hasData = false;
-        }
-      };
+  app._apiChanged = function(e) {
+    const file = e.target.selectedItem.dataset.src;
+    app._loadFile(file);
+  };
 
-      app.setData = function(id) {
-        document.getElementById('mediaList').selected = undefined;
-        const webApi = app.$.helper._computeWebApi(app.amfModel);
-        const method = app.$.helper._computeMethodModel(webApi, id);
-        const expect = app.$.helper._computeExpects(method);
-        const payloads = app.$.helper._computePayload(expect);
-        app.payloads = payloads;
-        app.setupMediaTypes(payloads);
-      };
+  app._navChanged = function(e) {
+    if (e.detail.passive) {
+      return;
+    }
+    const type = e.detail.type;
+    if (type === 'method') {
+      app.setData(e.detail.selected);
+      app.hasData = true;
+    } else {
+      app.hasData = false;
+    }
+  };
 
-      app.setupMediaTypes = function(payloads) {
-        const ns = ApiElements.Amf.ns;
-        const types = payloads.map((item) => {
-          return app.$.helper._getValue(item, ns.raml.vocabularies.http + 'mediaType');
-        });
-        app.mediaTypes = types;
-        const dropdown = document.getElementById('mediaDropdown');
-        if (dropdown.hasAttribute('disabled')) {
-          dropdown.removeAttribute('disabled');
-        }
-        if (types && types.length === 1) {
-          document.getElementById('mediaList').selected = 0;
-        }
-      };
+  app.setData = function(id) {
+    document.getElementById('mediaList').selected = undefined;
+    const webApi = app.$.helper._computeWebApi(app.amfModel);
+    const method = app.$.helper._computeMethodModel(webApi, id);
+    const expect = app.$.helper._computeExpects(method);
+    const payloads = app.$.helper._computePayload(expect);
+    app.payloads = payloads;
+    app.setupMediaTypes(payloads);
+  };
 
-      app._mediaTypeChanged = function(e) {
-        const ns = ApiElements.Amf.ns;
-        const payload = app.payloads[e.detail.value];
-        if (!payload) {
-          return;
-        }
-        const key = app.$.helper._getAmfKey(ns.raml.vocabularies.http + 'schema');
-        let schema = app.$.helper._ensureArray(payload[key])[0];
-        schema = app.$.helper._resolve(schema);
-        const pKey = app.$.helper._getAmfKey(ns.w3.shacl.name + 'property');
-        const properties = app.$.helper._ensureArray(schema[pKey]);
-        const tr = document.getElementById('transformer');
-        tr.amfModel = app.amfModel;
-        const model = tr.computeViewModel(properties);
-        app.dataViewModel = model;
-      };
-      window.addEventListener('api-navigation-selection-changed', app._navChanged);
-      window.addEventListener('WebComponentsReady', () => app._load());
-    })(document.getElementById('demo'));
-  </script>
+  app.setupMediaTypes = function(payloads) {
+    const ns = ApiElements.Amf.ns;
+    const types = payloads.map((item) => {
+      return app.$.helper._getValue(item, ns.raml.vocabularies.http + 'mediaType');
+    });
+    app.mediaTypes = types;
+    const dropdown = document.getElementById('mediaDropdown');
+    if (dropdown.hasAttribute('disabled')) {
+      dropdown.removeAttribute('disabled');
+    }
+    if (types && types.length === 1) {
+      document.getElementById('mediaList').selected = 0;
+    }
+  };
+
+  app._mediaTypeChanged = function(e) {
+    const ns = ApiElements.Amf.ns;
+    const payload = app.payloads[e.detail.value];
+    if (!payload) {
+      return;
+    }
+    const key = app.$.helper._getAmfKey(ns.raml.vocabularies.http + 'schema');
+    let schema = app.$.helper._ensureArray(payload[key])[0];
+    schema = app.$.helper._resolve(schema);
+    const pKey = app.$.helper._getAmfKey(ns.w3.shacl.name + 'property');
+    const properties = app.$.helper._ensureArray(schema[pKey]);
+    const tr = document.getElementById('transformer');
+    tr.amfModel = app.amfModel;
+    const model = tr.computeViewModel(properties);
+    app.dataViewModel = model;
+  };
+  window.addEventListener('api-navigation-selection-changed', app._navChanged);
+  window.addEventListener('WebComponentsReady', () => app._load());
+})(document.getElementById('demo'));
+</script>
 </body>
 </html>
