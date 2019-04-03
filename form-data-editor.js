@@ -11,21 +11,19 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import {PolymerElement} from '@polymer/polymer/polymer-element.js';
-import {IronValidatableBehavior} from '@polymer/iron-validatable-behavior/iron-validatable-behavior.js';
-import {PayloadParserMixin} from '@advanced-rest-client/payload-parser-mixin/payload-parser-mixin.js';
-import {ApiFormMixin} from '@api-components/api-form-mixin/api-form-mixin.js';
-import {html} from '@polymer/polymer/lib/utils/html-tag.js';
-import {mixinBehaviors} from '@polymer/polymer/lib/legacy/class.js';
-import '@polymer/polymer/lib/elements/dom-repeat.js';
-import '@polymer/polymer/lib/elements/dom-if.js';
-import '@advanced-rest-client/arc-icons/arc-icons.js';
-import '@polymer/iron-form/iron-form.js';
-import '@polymer/iron-flex-layout/iron-flex-layout.js';
-import '@polymer/paper-button/paper-button.js';
-import '@polymer/paper-icon-button/paper-icon-button.js';
-import '@polymer/paper-checkbox/paper-checkbox.js';
-import '@api-components/api-form-mixin/api-form-styles.js';
+import {PolymerElement} from '../../@polymer/polymer/polymer-element.js';
+import {IronValidatableBehavior} from '../../@polymer/iron-validatable-behavior/iron-validatable-behavior.js';
+import {PayloadParserMixin} from '../../@advanced-rest-client/payload-parser-mixin/payload-parser-mixin.js';
+import {ApiFormMixin} from '../../@api-components/api-form-mixin/api-form-mixin.js';
+import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
+import {mixinBehaviors} from '../../@polymer/polymer/lib/legacy/class.js';
+import '../../@advanced-rest-client/arc-icons/arc-icons.js';
+import '../../@polymer/iron-form/iron-form.js';
+import '../../@polymer/iron-flex-layout/iron-flex-layout.js';
+import '../../@polymer/paper-button/paper-button.js';
+import '../../@polymer/paper-icon-button/paper-icon-button.js';
+import '../../@polymer/paper-checkbox/paper-checkbox.js';
+import '../../@api-components/api-form-mixin/api-form-styles.js';
 import './form-data-editor-item.js';
 /**
  * An element to edit form data (x-www-form-urlencoded).

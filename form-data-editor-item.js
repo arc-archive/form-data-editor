@@ -11,18 +11,18 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import {PolymerElement} from '@polymer/polymer/polymer-element.js';
-import {html} from '@polymer/polymer/lib/utils/html-tag.js';
-import '@polymer/polymer/lib/elements/dom-if.js';
-import '@advanced-rest-client/arc-icons/arc-icons.js';
-import '@polymer/iron-flex-layout/iron-flex-layout.js';
-import '@polymer/iron-collapse/iron-collapse.js';
-import '@polymer/paper-input/paper-input.js';
-import '@polymer/paper-icon-button/paper-icon-button.js';
-import '@polymer/marked-element/marked-element.js';
-import '@advanced-rest-client/markdown-styles/markdown-styles.js';
-import '@api-components/api-form-mixin/api-form-styles.js';
-import '@api-components/api-property-form-item/api-property-form-item.js';
+import {PolymerElement} from '../../@polymer/polymer/polymer-element.js';
+import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
+import '../../@polymer/polymer/lib/elements/dom-if.js';
+import '../../@advanced-rest-client/arc-icons/arc-icons.js';
+import '../../@polymer/iron-flex-layout/iron-flex-layout.js';
+import '../../@polymer/iron-collapse/iron-collapse.js';
+import '../../@polymer/paper-input/paper-input.js';
+import '../../@polymer/paper-icon-button/paper-icon-button.js';
+import '../../@polymer/marked-element/marked-element.js';
+import '../../@advanced-rest-client/markdown-styles/markdown-styles.js';
+import '../../@api-components/api-form-mixin/api-form-styles.js';
+import '../../@api-components/api-property-form-item/api-property-form-item.js';
 
 /**
  * An element that renders form controls for the editor.
