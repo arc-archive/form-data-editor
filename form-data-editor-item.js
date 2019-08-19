@@ -11,244 +11,325 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import {PolymerElement} from '../../@polymer/polymer/polymer-element.js';
-import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
-import '../../@polymer/polymer/lib/elements/dom-if.js';
-import '../../@advanced-rest-client/arc-icons/arc-icons.js';
-import '../../@polymer/iron-flex-layout/iron-flex-layout.js';
-import '../../@polymer/iron-collapse/iron-collapse.js';
-import '../../@polymer/paper-input/paper-input.js';
-import '../../@polymer/paper-icon-button/paper-icon-button.js';
-import '../../@polymer/marked-element/marked-element.js';
-import '../../@advanced-rest-client/markdown-styles/markdown-styles.js';
-import '../../@api-components/api-form-mixin/api-form-styles.js';
-import '../../@api-components/api-property-form-item/api-property-form-item.js';
+import { html, css, LitElement } from 'lit-element';
+import markdownStyles from '@advanced-rest-client/markdown-styles/markdown-styles.js';
+import formStyles from '@api-components/api-form-mixin/api-form-styles.js';
+import '@advanced-rest-client/arc-icons/arc-icons.js';
+import '@anypoint-web-components/anypoint-input/anypoint-input.js';
+import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
+import '@advanced-rest-client/arc-marked/arc-marked.js';
+import '@api-components/api-property-form-item/api-property-form-item.js';
 
 /**
  * An element that renders form controls for the editor.
  *
- * ### Styling
- *
- * `<form-data-editor-item>` provides the following custom properties and mixins for styling:
- *
- * Custom property | Description | Default
- * ----------------|-------------|----------
- * `--form-data-editor-item` | Mixin applied to the element | `{}`
- * `--api-form-name-input` | Mixin applied to custom item name input field | `{}`
- * `--api-form-name-input-narrow` | Mixin applied to custom item name input field when narrow | `{}`
- *
- * Properies inheritet from `api-form-styles`
- *
- * Custom property | Description | Default
- * ----------------|-------------|----------
- * `--api-form-row` | Mixin applied to API form rows. Each row already applies `--layout-horizontal` and `--layout-start` | `{}`
- * `--api-form-row-narrow` | Mixin applied to API form rows when `narrow` property is set | `{}`
- * `--api-form-row-optional` | Mixin applied to optional row of the form (not required). By default this form row is hidden from the view | `{}`
- * `--api-form-row-optional-visible` | Mixin applied to optional row of the form when it becomes visible | `{}`
- * `--api-form-action-button-color` | Color of the action button in the form. Action buttons should perform form's primary actions like "submit" or "add new". Use `--api-form-action-icon-*` for icons related styling | `--secondary-button-color` or `--accent-color`
- * `--api-form-action-button-background-color` | Similar to `--api-form-action-button-color` but it's background color | `--secondary-button-background`
- * `--secondary-button` | Mixin applied to the action button. This is more general theme element. This values can be overriten by `--api-form-action-button` | `{}`
- * `--api-form-action-button` | Mixin applied to the action button | `{}`
- * `--api-form-action-button-hover-color` | Color of the action button in the form when hovering. | `--secondary-button-color` or `--accent-color`
- * `--api-form-action-button-hover-background-color` | Similar to `--api-form-action-button-hover-color` but it's background color | `--secondary-button-background`
- * `--secondary-button-hover` | Mixin applied to the action button when hovered. This is more general theme element. This values can be overriten by `--api-form-action-button` | `{}`
- * `--api-form-action-button-hover` | Mixin applied to the action button when hovered. | `{}`
- * `--hint-trigger-color` | Color of the form action icon button to dispay documentation for the item. | `rgba(0, 0, 0, 0.74)`
- * `--icon-button` | Mixin applied to the icon button to dispay documentation for the item | `{}`
- * `--hint-trigger-hover-color` | Color of the form action icon button to dispay documentation for the item when hovered | `rgba(0, 0, 0, 0.74)`
- * `--icon-button-hover` | Mixin applied to the icon button to dispay documentation for the item when hovered | `{}`
- * `--api-form-action-icon-color` | Color of any other than documentation icon button in form row | `--icon-button-color` or `rgba(0, 0, 0, 0.74)`
- * `--api-form-action-icon-hover-color` | Color of any other than documentation icon button in form row when hovering | `--accent-color` or `rgba(0, 0, 0, 0.88)`
- * `--inline-documentation-background-color` | Background color of the documentation element. | `#FFF3E0`
- * `--inline-documentation-color` | Color of the documentation element | `rgba(0, 0, 0, 0.87)`
- * `--inline-documentation-font-size` | Font size of the documentaiton element | `13px`
- *
  * @customElement
- * @polymer
  * @demo demo/simple.html Simple usage
  * @demo demo/raml.html With AMF model from RAML file
  * @memberof UiElements
  */
-class FormDataEditorItem extends PolymerElement {
-  static get template() {
-    return html`<style include="api-form-styles"></style>
-    <style include="markdown-styles"></style>
-    <style>
-    :host {
-      display: block;
-      @apply --form-data-editor-item;
-    }
+class FormDataEditorItem extends LitElement {
+  static get styles() {
+    return [
+      markdownStyles,
+      formStyles,
+      css`:host {
+        display: block;
+      }
 
-    .custom-inputs,
-    .value-field {
-      @apply --layout-horizontal;
-      @apply --layout-start;
-    }
+      .custom-inputs,
+      .value-field {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
 
-    .narrow .custom-inputs {
-      display: block;
-    }
+      .narrow .custom-inputs {
+        display: block;
+      }
 
-    .name-field,
-    .value-field,
-    .param-name,
-    .custom-inputs,
-    api-property-form-item {
-      @apply --layout-flex;
-    }
+      .value-field,
+      .param-name,
+      .custom-inputs,
+      api-property-form-item {
+        flex: 1;
+      }
 
-    api-property-form-item[is-array] {
-      margin-top: 8px;
-    }
+      api-property-form-item[isarray] {
+        margin-top: 8px;
+      }
 
-    .param-name {
-      margin-right: 12px;
-      @apply --api-form-name-input;
-    }
+      .narrow .param-name {
+        margin-right: 0;
+      }
 
-    .narrow .param-name {
-      margin-right: 0;
-      @apply --api-form-name-input-narrow;
-    }
+      [hidden] {
+        display: none !important;
+      }`
+    ];
+  }
 
-    [hidden] {
-      display: none !important;
-    }
+  _customTemplate() {
+    const {
+      name,
+      value,
+      readOnly,
+      disabled,
+      legacy,
+      outlined
+    } = this;
+    return html`<div class="custom-inputs">
+      <anypoint-input
+        name="custom-name"
+        .value="${name}"
+        @value-changed="${this._nameChangeHandler}"
+        class="param-name"
+        type="text"
+        required
+        autovalidate
+        ?outlined="${outlined}"
+        ?legacy="${legacy}"
+        .readOnly="${readOnly}"
+        .disabled=${disabled}>
+        <label slot="label">Parameter name</label>
+      </anypoint-input>
 
-    .hint-icon {
-      margin-top: 16px;
-    }
-
-    .form-item.narrow {
-      @apply --layout-horizontal;
-    }
-
-    .form-item.narrow .delete-icon {
-      margin-top: 16px;
-    }
-    </style>
-    <div class\$="form-item [[_computeNarrowClass(narrow)]]">
-      <template is="dom-if" if="[[!isCustom]]">
-        <div class="value-field">
-          <api-property-form-item model="[[model]]" name="[[name]]"
-            value="{{value}}" data-type="typed" required\$="[[required]]"></api-property-form-item>
-          <template is="dom-if" if="[[model.hasDescription]]">
-            <paper-icon-button class="hint-icon" title="Display documentation"
-            icon="arc:help" on-click="toggleDocumentation"></paper-icon-button>
-          </template>
-        </div>
-      </template>
-      <template is="dom-if" if="[[isCustom]]">
-        <div class="custom-inputs">
-          <div class="name-field">
-            <paper-input value="{{name}}" label="Parameter name" class="param-name"
-            no-label-float="[[noLabelFloat]]" required="" auto-validate=""></paper-input>
-          </div>
-          <div class="value-field">
-            <api-property-form-item model="[[model]]" name="[[name]]" value="{{value}}"
-            data-type="custom" required\$="[[required]]" no-label-float="[[noLabelFloat]]"></api-property-form-item>
-          </div>
-        </div>
-        <paper-icon-button title="Remove parameter" class="action-icon delete-icon"
-        icon="arc:remove-circle-outline" on-click="_remove"></paper-icon-button>
-      </template>
+      <anypoint-input
+        .name="${name}"
+        .value="${value}"
+        @value-changed="${this._valueChangeHandler}"
+        class="param-value"
+        type="text"
+        ?outlined="${outlined}"
+        ?legacy="${legacy}"
+        .readOnly="${readOnly}"
+        .disabled=${disabled}>
+        <label slot="label">Parameter value</label>
+      </anypoint-input>
     </div>
-    <template is="dom-if" if="[[model.hasDescription]]" restamp="">
-      <div class="docs">
-        <iron-collapse opened="[[docsOpened]]">
-          <marked-element markdown="[[model.description]]">
-            <div slot="markdown-html" class="markdown-body"></div>
-          </marked-element>
-        </iron-collapse>
-      </div>
-    </template>`;
+
+    <anypoint-icon-button
+      title="Remove this parameter"
+      aria-label="Press to remove parameter ${name}"
+      class="action-icon delete-icon"
+      @click="${this._remove}"
+      slot="suffix"
+      ?disabled="${readOnly || disabled}"
+      ?outlined="${outlined}"
+      ?legacy="${legacy}">
+      <iron-icon icon="arc:remove-circle-outline"></iron-icon>
+    </anypoint-icon-button>`;
   }
 
-  static get is() {
-    return 'form-data-editor-item';
+  _modelTemplate(model, hasDocs, noDocs) {
+    const {
+      name,
+      value,
+      readOnly,
+      disabled,
+      legacy,
+      outlined,
+      narrow,
+      required
+    } = this;
+    return html`<div class="value-field">
+      <api-property-form-item
+        data-type="typed"
+        name="${name}"
+        .value="${value}"
+        @value-changed="${this._valueChangeHandler}"
+        .model="${model}"
+        ?required="${required}"
+        .readOnly="${readOnly}"
+        .disabled=${disabled}
+        ?narrow="${narrow}"
+        .noDocs="${noDocs}"
+        ?outlined="${outlined}"
+        ?legacy="${legacy}"
+        ></api-property-form-item>
+      ${hasDocs ? html`<anypoint-icon-button
+        class="hint-icon"
+        title="Toggle documentation"
+        aria-label="Press to toggle documentation for this property"
+        ?outlined="${outlined}"
+        ?legacy="${legacy}"
+        ?disabled="${disabled}"
+        @click="${this._toggleItemDocs}">
+        <iron-icon icon="arc:help"></iron-icon>
+      </anypoint-icon-button>` : undefined}
+    </div>`;
   }
+
+  render() {
+    const {
+      narrow,
+      isCustom,
+      docsOpened,
+      noDocs,
+      model
+    } = this;
+    const hasDocs = this._computeHasDocumentation(noDocs, model);
+    const renderDocs = !noDocs && hasDocs && !!docsOpened;
+
+    return html`
+    <div class="form-item${narrow ? ' narrow' : ''}">
+      ${isCustom ? this._customTemplate() : this._modelTemplate(model, hasDocs, noDocs)}
+    </div>
+    ${renderDocs ? html`<div class="docs">
+      <arc-marked .markdown="${this._computeDocumentation(model)}">
+        <div slot="markdown-html" class="markdown-body"></div>
+      </arc-marked>
+    </div>` : undefined}`;
+  }
+
   static get properties() {
     return {
       /**
        * The name of this element.
        */
-      name: {
-        notify: true,
-        type: String
-      },
+      name: { type: String },
       /**
        * The value of this element.
        */
-      value: {
-        notify: true,
-        type: String
-      },
+      value: { type: String },
       /**
        * A model item
        */
-      model: Object,
+      model: { type: Object },
       /**
        * If set it renders a narrow layout
        */
-      narrow: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true
-      },
+      narrow: { type: Boolean, reflect: true },
       /**
        * True to render documentation (if set in model)
        */
-      docsOpened: Boolean,
-      /**
-       * Computed value passed to the inputs.
-       * If true then floating labels are not displayed.
-       * Floating labels are visible only for narrow layout.
-       */
-      noLabelFloat: {
-        type: Boolean,
-        value: true,
-        computed: '_computeNoLabelFloat(narrow)'
-      },
+      docsOpened: { type: Boolean },
       /**
        * Set if the header is not specified in the RAML type (is a custom
        * header).
        */
-      isCustom: {
-        type: Boolean,
-        value: false
-      },
+      isCustom: { type: Boolean },
       /**
        * If set it is render the item control as an array item (adds more
        * spacing to the element)
        */
-      isArray: {
-        type: Boolean,
-        reflectToAttribute: true
-      },
-      // True when this model is required
-      required: Boolean
+      isArray: { type: Boolean, reflect: true },
+      /**
+       * Prohibits rendering of the documentation (the icon and the
+       * description).
+       */
+      noDocs: { type: Boolean },
+      /**
+       * Enables Anypoint legacy styling
+       */
+      legacy: { type: Boolean, reflect: true },
+      /**
+       * Enables Material Design outlined style
+       */
+      outlined: { type: Boolean },
+      /**
+       * When set the editor is in read only mode.
+       */
+      readOnly: { type: Boolean },
+      /**
+       * When set all controls are disabled in the form
+       */
+      disabled: { type: Boolean },
+      /**
+       * When set a model generated item is maked as required.
+       */
+      required: { type: Boolean }
     };
-  }
-  // Computes css class name for narrow layout
-  _computeNarrowClass(narrow) {
-    return narrow ? 'narrow' : undefined;
-  }
-  // Computes `noLabelFloat` property
-  _computeNoLabelFloat(narrow) {
-    return !narrow;
-  }
-  // Toggles documentation (if available)
-  toggleDocumentation() {
-    this.docsOpened = !this.docsOpened;
   }
   /**
    * Dispatches `remove` custom event that does not bubbles to inform the editor
    * to delete this parameter.
    */
   _remove() {
-    this.dispatchEvent(new CustomEvent('remove', {
-      bubbles: false
+    this.dispatchEvent(new CustomEvent('remove'));
+  }
+  /**
+   * Computes documentation as a markdown to be placed in the `marked-element`
+   * @param {Object} item View model
+   * @return {String}
+   */
+  _computeDocumentation(item) {
+    let docs = '';
+    if (item.description) {
+      docs += item.description;
+    }
+    if (!item.schema) {
+      return docs;
+    }
+    const schema = item.schema;
+    if (docs) {
+      docs += '\n\n\n';
+    }
+    if (schema.pattern) {
+      docs += '- Pattern: `' + schema.pattern + '`\n';
+    }
+    if (schema.examples && schema.examples.length) {
+      schema.examples.forEach((item) => {
+        if (!item.value) {
+          return;
+        }
+        docs += '- Example';
+        if (item.hasName) {
+          docs += ' ' + item.name;
+        }
+        docs += ': `' + item.value + '`\n';
+      });
+    }
+    return docs;
+  }
+  /**
+   * Computes if model item has documentation to display.
+   * @param {Boolean} noDocs If set it always cancels docs
+   * @param {Object} item Model item
+   * @return {Boolean} True if documentation can be rendered.
+   */
+  _computeHasDocumentation(noDocs, item) {
+    if (noDocs || !item) {
+      return false;
+    }
+    if (item.hasDescription) {
+      return true;
+    }
+    if (!item.schema) {
+      return false;
+    }
+    const schema = item.schema;
+    if (schema.pattern) {
+      return true;
+    }
+    if (schema.examples && schema.examples.length && schema.examples[0].value) {
+      return true;
+    }
+    return false;
+  }
+
+  _valueChangeHandler(e) {
+    const { value } = e.detail;
+    this.value = value;
+    this.dispatchEvent(new CustomEvent('value-changed', {
+      detail: {
+        value
+      }
     }));
   }
+
+  _nameChangeHandler(e) {
+    const { value } = e.detail;
+    this.name = value;
+    this.dispatchEvent(new CustomEvent('name-changed', {
+      detail: {
+        value
+      }
+    }));
+  }
+
+  _toggleItemDocs() {
+    this.docsOpened = !this.docsOpened;
+  }
 }
-window.customElements.define(FormDataEditorItem.is, FormDataEditorItem);
+window.customElements.define('form-data-editor-item', FormDataEditorItem);

@@ -12,48 +12,14 @@
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
 
+import {html, css, LitElement} from 'lit-element';
+
 declare namespace UiElements {
 
   /**
    * An element that renders form controls for the editor.
-   *
-   * ### Styling
-   *
-   * `<form-data-editor-item>` provides the following custom properties and mixins for styling:
-   *
-   * Custom property | Description | Default
-   * ----------------|-------------|----------
-   * `--form-data-editor-item` | Mixin applied to the element | `{}`
-   * `--api-form-name-input` | Mixin applied to custom item name input field | `{}`
-   * `--api-form-name-input-narrow` | Mixin applied to custom item name input field when narrow | `{}`
-   *
-   * Properies inheritet from `api-form-styles`
-   *
-   * Custom property | Description | Default
-   * ----------------|-------------|----------
-   * `--api-form-row` | Mixin applied to API form rows. Each row already applies `--layout-horizontal` and `--layout-start` | `{}`
-   * `--api-form-row-narrow` | Mixin applied to API form rows when `narrow` property is set | `{}`
-   * `--api-form-row-optional` | Mixin applied to optional row of the form (not required). By default this form row is hidden from the view | `{}`
-   * `--api-form-row-optional-visible` | Mixin applied to optional row of the form when it becomes visible | `{}`
-   * `--api-form-action-button-color` | Color of the action button in the form. Action buttons should perform form's primary actions like "submit" or "add new". Use `--api-form-action-icon-*` for icons related styling | `--secondary-button-color` or `--accent-color`
-   * `--api-form-action-button-background-color` | Similar to `--api-form-action-button-color` but it's background color | `--secondary-button-background`
-   * `--secondary-button` | Mixin applied to the action button. This is more general theme element. This values can be overriten by `--api-form-action-button` | `{}`
-   * `--api-form-action-button` | Mixin applied to the action button | `{}`
-   * `--api-form-action-button-hover-color` | Color of the action button in the form when hovering. | `--secondary-button-color` or `--accent-color`
-   * `--api-form-action-button-hover-background-color` | Similar to `--api-form-action-button-hover-color` but it's background color | `--secondary-button-background`
-   * `--secondary-button-hover` | Mixin applied to the action button when hovered. This is more general theme element. This values can be overriten by `--api-form-action-button` | `{}`
-   * `--api-form-action-button-hover` | Mixin applied to the action button when hovered. | `{}`
-   * `--hint-trigger-color` | Color of the form action icon button to dispay documentation for the item. | `rgba(0, 0, 0, 0.74)`
-   * `--icon-button` | Mixin applied to the icon button to dispay documentation for the item | `{}`
-   * `--hint-trigger-hover-color` | Color of the form action icon button to dispay documentation for the item when hovered | `rgba(0, 0, 0, 0.74)`
-   * `--icon-button-hover` | Mixin applied to the icon button to dispay documentation for the item when hovered | `{}`
-   * `--api-form-action-icon-color` | Color of any other than documentation icon button in form row | `--icon-button-color` or `rgba(0, 0, 0, 0.74)`
-   * `--api-form-action-icon-hover-color` | Color of any other than documentation icon button in form row when hovering | `--accent-color` or `rgba(0, 0, 0, 0.88)`
-   * `--inline-documentation-background-color` | Background color of the documentation element. | `#FFF3E0`
-   * `--inline-documentation-color` | Color of the documentation element | `rgba(0, 0, 0, 0.87)`
-   * `--inline-documentation-font-size` | Font size of the documentaiton element | `13px`
    */
-  class FormDataEditorItem extends PolymerElement {
+  class FormDataEditorItem extends LitElement {
 
     /**
      * The name of this element.
@@ -81,13 +47,6 @@ declare namespace UiElements {
     docsOpened: boolean|null|undefined;
 
     /**
-     * Computed value passed to the inputs.
-     * If true then floating labels are not displayed.
-     * Floating labels are visible only for narrow layout.
-     */
-    readonly noLabelFloat: boolean|null|undefined;
-
-    /**
      * Set if the header is not specified in the RAML type (is a custom
      * header).
      */
@@ -100,30 +59,64 @@ declare namespace UiElements {
     isArray: boolean|null|undefined;
 
     /**
-     * True when this model is required
+     * Prohibits rendering of the documentation (the icon and the
+     * description).
+     */
+    noDocs: boolean|null|undefined;
+
+    /**
+     * Enables Anypoint legacy styling
+     */
+    legacy: boolean|null|undefined;
+
+    /**
+     * Enables Material Design outlined style
+     */
+    outlined: boolean|null|undefined;
+
+    /**
+     * When set the editor is in read only mode.
+     */
+    readOnly: boolean|null|undefined;
+
+    /**
+     * When set all controls are disabled in the form
+     */
+    disabled: boolean|null|undefined;
+
+    /**
+     * When set a model generated item is maked as required.
      */
     required: boolean|null|undefined;
-
-    /**
-     * Computes css class name for narrow layout
-     */
-    _computeNarrowClass(narrow: any): any;
-
-    /**
-     * Computes `noLabelFloat` property
-     */
-    _computeNoLabelFloat(narrow: any): any;
-
-    /**
-     * Toggles documentation (if available)
-     */
-    toggleDocumentation(): void;
+    constructor();
+    render(): any;
+    _customTemplate(): any;
+    _modelTemplate(model: any, hasDocs: any, noDocs: any): any;
 
     /**
      * Dispatches `remove` custom event that does not bubbles to inform the editor
      * to delete this parameter.
      */
     _remove(): void;
+
+    /**
+     * Computes documentation as a markdown to be placed in the `marked-element`
+     *
+     * @param item View model
+     */
+    _computeDocumentation(item: object|null): String|null;
+
+    /**
+     * Computes if model item has documentation to display.
+     *
+     * @param noDocs If set it always cancels docs
+     * @param item Model item
+     * @returns True if documentation can be rendered.
+     */
+    _computeHasDocumentation(noDocs: Boolean|null, item: object|null): Boolean|null;
+    _valueChangeHandler(e: any): void;
+    _nameChangeHandler(e: any): void;
+    _toggleItemDocs(): void;
   }
 }
 
@@ -133,5 +126,3 @@ declare global {
     "form-data-editor-item": UiElements.FormDataEditorItem;
   }
 }
-
-export {};

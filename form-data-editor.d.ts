@@ -12,101 +12,81 @@
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
 
+import {html, css, LitElement} from 'lit-element';
+
+import {ValidatableMixin} from '@anypoint-web-components/validatable-mixin/validatable-mixin.js';
+
+import {PayloadParserMixin} from '@advanced-rest-client/payload-parser-mixin/payload-parser-mixin.js';
+
+import {ApiFormMixin} from '@api-components/api-form-mixin/api-form-mixin.js';
+
 declare namespace UiElements {
 
   /**
    * An element to edit form data (x-www-form-urlencoded).
-   *
-   * Empty values for both name and value inputs are not included in final body value.
-   *
-   * The element can work as a simple body creation element. Set `allow-custom`
-   * to allow the user to add a parameter that hasn been predefined.
-   *
-   * ```html
-   * <form-data-editor allow-custom></form-data-editor>
-   * ```
-   *
-   * The element works with `advanced-rest-client/api-view-model-transformer`
-   * that can create view model from default of from AMF json/ld model.
-   * [AMF](https://github.com/mulesoft/amf) allows to transform RAML or OAS
-   * specification of an API to a common model. The transformer generates
-   * view model from api spec. If `allow-custom` is not set, the element
-   * allows to define values only for properties defined in the model.
-   *
-   * ```html
-   * <form-data-editor model="[...]"></form-data-editor>
-   * ```
-   *
-   * The element allows to disable form item on the list so the user can
-   * remove a property from the generated value without removing it from the
-   * form. Use `allow-disable-params` to enable this feature.
-   *
-   * ```html
-   * <form-data-editor allow-disable-params></form-data-editor>
-   * ```
-   *
-   * ### Styling
-   *
-   * `<form-data-editor>` provides the following custom properties and mixins for styling:
-   *
-   * Custom property | Description | Default
-   * ----------------|-------------|----------
-   * `--form-data-editor` | Mixin applied to the element | `{}`
-   * `--form-data-editor-encode-buttons` | Mixin applied to encode / decode buttons container | `{}`
-   *
-   * Properies included in `form-data-editor-item`:
-   *
-   * Custom property | Description | Default
-   * ----------------|-------------|----------
-   * `--form-data-editor-item` | Mixin applied to the element | `{}`
-   * `--api-form-name-input` | Mixin applied to custom item name input field | `{}`
-   * `--api-form-name-input-narrow` | Mixin applied to custom item name input field when narrow | `{}`
-   *
-   * Properies inheritet from `api-form-styles`
-   *
-   * Custom property | Description | Default
-   * ----------------|-------------|----------
-   * `--api-form-row` | Mixin applied to API form rows. Each row already applies `--layout-horizontal` and `--layout-start` | `{}`
-   * `--api-form-row-narrow` | Mixin applied to API form rows when `narrow` property is set | `{}`
-   * `--api-form-row-optional` | Mixin applied to optional row of the form (not required). By default this form row is hidden from the view | `{}`
-   * `--api-form-row-optional-visible` | Mixin applied to optional row of the form when it becomes visible | `{}`
-   * `--api-form-action-button-color` | Color of the action button in the form. Action buttons should perform form's primary actions like "submit" or "add new". Use `--api-form-action-icon-*` for icons related styling | `--secondary-button-color` or `--accent-color`
-   * `--api-form-action-button-background-color` | Similar to `--api-form-action-button-color` but it's background color | `--secondary-button-background`
-   * `--secondary-button` | Mixin applied to the action button. This is more general theme element. This values can be overriten by `--api-form-action-button` | `{}`
-   * `--api-form-action-button` | Mixin applied to the action button | `{}`
-   * `--api-form-action-button-hover-color` | Color of the action button in the form when hovering. | `--secondary-button-color` or `--accent-color`
-   * `--api-form-action-button-hover-background-color` | Similar to `--api-form-action-button-hover-color` but it's background color | `--secondary-button-background`
-   * `--secondary-button-hover` | Mixin applied to the action button when hovered. This is more general theme element. This values can be overriten by `--api-form-action-button` | `{}`
-   * `--api-form-action-button-hover` | Mixin applied to the action button when hovered. | `{}`
-   * `--hint-trigger-color` | Color of the form action icon button to dispay documentation for the item. | `rgba(0, 0, 0, 0.74)`
-   * `--icon-button` | Mixin applied to the icon button to dispay documentation for the item | `{}`
-   * `--hint-trigger-hover-color` | Color of the form action icon button to dispay documentation for the item when hovered | `rgba(0, 0, 0, 0.74)`
-   * `--icon-button-hover` | Mixin applied to the icon button to dispay documentation for the item when hovered | `{}`
-   * `--api-form-action-icon-color` | Color of any other than documentation icon button in form row | `--icon-button-color` or `rgba(0, 0, 0, 0.74)`
-   * `--api-form-action-icon-hover-color` | Color of any other than documentation icon button in form row when hovering | `--accent-color` or `rgba(0, 0, 0, 0.88)`
-   * `--inline-documentation-background-color` | Background color of the documentation element. | `#FFF3E0`
-   * `--inline-documentation-color` | Color of the documentation element | `rgba(0, 0, 0, 0.87)`
-   * `--inline-documentation-font-size` | Font size of the documentaiton element | `13px`
    */
   class FormDataEditor extends
+    ValidatableMixin(
     ApiFormMixin(
     PayloadParserBehavior(
-    Object)) {
+    Object))) {
+    model: any;
+
+    /**
+     * The editor value
+     */
     value: string|null|undefined;
+    onmodel: Function|null;
+    onchange: Function|null;
+
+    /**
+     * Prohibits rendering of the documentation (the icon and the
+     * description).
+     */
+    noDocs: boolean|null|undefined;
+
+    /**
+     * Enables Anypoint legacy styling
+     */
+    legacy: boolean|null|undefined;
+
+    /**
+     * Enables Material Design outlined style
+     */
+    outlined: boolean|null|undefined;
+
+    /**
+     * When set the editor is in read only mode.
+     */
+    readOnly: boolean|null|undefined;
+
+    /**
+     * When set all controls are disabled in the form
+     */
+    disabled: boolean|null|undefined;
+    _formRowTemplate(item: any, index: any): any;
+    render(): any;
+
+    /**
+     * Registers an event handler for given type
+     *
+     * @param eventType Event type (name)
+     * @param value The handler to register
+     */
+    _registerCallback(eventType: String|null, value: Function|null): void;
 
     /**
      * Appends an empty header to the list.
      */
     add(): void;
-    _modelChanged(record: any): void;
 
     /**
-     * Encode payload button press handler
+     * Encodes the payload
      */
     _encodePaylod(): void;
 
     /**
-     * Decode payload button press handler
+     * Decodes the payload
      */
     _decodePaylod(): void;
 
@@ -119,10 +99,8 @@ declare namespace UiElements {
 
     /**
      * Updates the value when model changes.
-     *
-     * @param model Current model
      */
-    _updateValue(model: any[]|null): void;
+    _updateValue(): void;
 
     /**
      * Updates the model from value, if not cause by internal setters.
@@ -135,6 +113,10 @@ declare namespace UiElements {
      * @param param Object with `value` and `name` properties.
      */
     _paramToModel(param: object|null): void;
+    _optionalHanlder(e: any): void;
+    _enableCheckedHandler(e: any): void;
+    _valueChangeHanlder(e: any): void;
+    _nameChangeHanlder(e: any): void;
   }
 }
 
@@ -144,5 +126,3 @@ declare global {
     "form-data-editor": UiElements.FormDataEditor;
   }
 }
-
-export {};

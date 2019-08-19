@@ -11,208 +11,269 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import {PolymerElement} from '../../@polymer/polymer/polymer-element.js';
-import {IronValidatableBehavior} from '../../@polymer/iron-validatable-behavior/iron-validatable-behavior.js';
-import {PayloadParserMixin} from '../../@advanced-rest-client/payload-parser-mixin/payload-parser-mixin.js';
-import {ApiFormMixin} from '../../@api-components/api-form-mixin/api-form-mixin.js';
-import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
-import {mixinBehaviors} from '../../@polymer/polymer/lib/legacy/class.js';
-import '../../@advanced-rest-client/arc-icons/arc-icons.js';
-import '../../@polymer/iron-form/iron-form.js';
-import '../../@polymer/iron-flex-layout/iron-flex-layout.js';
-import '../../@polymer/paper-button/paper-button.js';
-import '../../@polymer/paper-icon-button/paper-icon-button.js';
-import '../../@polymer/paper-checkbox/paper-checkbox.js';
-import '../../@api-components/api-form-mixin/api-form-styles.js';
+import { html, css, LitElement } from 'lit-element';
+import { ValidatableMixin } from '@anypoint-web-components/validatable-mixin/validatable-mixin.js';
+import { PayloadParserMixin } from '@advanced-rest-client/payload-parser-mixin/payload-parser-mixin.js';
+import { ApiFormMixin } from '@api-components/api-form-mixin/api-form-mixin.js';
+import formStyles from '@api-components/api-form-mixin/api-form-styles.js';
+import '@advanced-rest-client/arc-icons/arc-icons.js';
+import '@polymer/iron-form/iron-form.js';
+import '@anypoint-web-components/anypoint-button/anypoint-button.js';
+import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
+import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
 import './form-data-editor-item.js';
 /**
  * An element to edit form data (x-www-form-urlencoded).
- *
- * Empty values for both name and value inputs are not included in final body value.
- *
- * The element can work as a simple body creation element. Set `allow-custom`
- * to allow the user to add a parameter that hasn been predefined.
- *
- * ```html
- * <form-data-editor allow-custom></form-data-editor>
- * ```
- *
- * The element works with `advanced-rest-client/api-view-model-transformer`
- * that can create view model from default of from AMF json/ld model.
- * [AMF](https://github.com/mulesoft/amf) allows to transform RAML or OAS
- * specification of an API to a common model. The transformer generates
- * view model from api spec. If `allow-custom` is not set, the element
- * allows to define values only for properties defined in the model.
- *
- * ```html
- * <form-data-editor model="[...]"></form-data-editor>
- * ```
- *
- * The element allows to disable form item on the list so the user can
- * remove a property from the generated value without removing it from the
- * form. Use `allow-disable-params` to enable this feature.
- *
- * ```html
- * <form-data-editor allow-disable-params></form-data-editor>
- * ```
- *
- * ### Styling
- *
- * `<form-data-editor>` provides the following custom properties and mixins for styling:
- *
- * Custom property | Description | Default
- * ----------------|-------------|----------
- * `--form-data-editor` | Mixin applied to the element | `{}`
- * `--form-data-editor-encode-buttons` | Mixin applied to encode / decode buttons container | `{}`
- *
- * Properies included in `form-data-editor-item`:
- *
- * Custom property | Description | Default
- * ----------------|-------------|----------
- * `--form-data-editor-item` | Mixin applied to the element | `{}`
- * `--api-form-name-input` | Mixin applied to custom item name input field | `{}`
- * `--api-form-name-input-narrow` | Mixin applied to custom item name input field when narrow | `{}`
- *
- * Properies inheritet from `api-form-styles`
- *
- * Custom property | Description | Default
- * ----------------|-------------|----------
- * `--api-form-row` | Mixin applied to API form rows. Each row already applies `--layout-horizontal` and `--layout-start` | `{}`
- * `--api-form-row-narrow` | Mixin applied to API form rows when `narrow` property is set | `{}`
- * `--api-form-row-optional` | Mixin applied to optional row of the form (not required). By default this form row is hidden from the view | `{}`
- * `--api-form-row-optional-visible` | Mixin applied to optional row of the form when it becomes visible | `{}`
- * `--api-form-action-button-color` | Color of the action button in the form. Action buttons should perform form's primary actions like "submit" or "add new". Use `--api-form-action-icon-*` for icons related styling | `--secondary-button-color` or `--accent-color`
- * `--api-form-action-button-background-color` | Similar to `--api-form-action-button-color` but it's background color | `--secondary-button-background`
- * `--secondary-button` | Mixin applied to the action button. This is more general theme element. This values can be overriten by `--api-form-action-button` | `{}`
- * `--api-form-action-button` | Mixin applied to the action button | `{}`
- * `--api-form-action-button-hover-color` | Color of the action button in the form when hovering. | `--secondary-button-color` or `--accent-color`
- * `--api-form-action-button-hover-background-color` | Similar to `--api-form-action-button-hover-color` but it's background color | `--secondary-button-background`
- * `--secondary-button-hover` | Mixin applied to the action button when hovered. This is more general theme element. This values can be overriten by `--api-form-action-button` | `{}`
- * `--api-form-action-button-hover` | Mixin applied to the action button when hovered. | `{}`
- * `--hint-trigger-color` | Color of the form action icon button to dispay documentation for the item. | `rgba(0, 0, 0, 0.74)`
- * `--icon-button` | Mixin applied to the icon button to dispay documentation for the item | `{}`
- * `--hint-trigger-hover-color` | Color of the form action icon button to dispay documentation for the item when hovered | `rgba(0, 0, 0, 0.74)`
- * `--icon-button-hover` | Mixin applied to the icon button to dispay documentation for the item when hovered | `{}`
- * `--api-form-action-icon-color` | Color of any other than documentation icon button in form row | `--icon-button-color` or `rgba(0, 0, 0, 0.74)`
- * `--api-form-action-icon-hover-color` | Color of any other than documentation icon button in form row when hovering | `--accent-color` or `rgba(0, 0, 0, 0.88)`
- * `--inline-documentation-background-color` | Background color of the documentation element. | `#FFF3E0`
- * `--inline-documentation-color` | Color of the documentation element | `rgba(0, 0, 0, 0.87)`
- * `--inline-documentation-font-size` | Font size of the documentaiton element | `13px`
- *
  * @customElement
- * @polymer
- * @demo demo/simple.html Simple usage
- * @demo demo/raml.html With AMF model from RAML file
- * @polymerBehavior Polymer.IronValidatableBehavior
+ * @demo demo/index.html
+ * @appliesMixin ValidatableMixin
  * @appliesMixin ApiFormMixin
  * @appliesMixin PayloadParserBehavior
  * @memberof UiElements
  */
-class FormDataEditor extends
-  mixinBehaviors([IronValidatableBehavior],
-    ApiFormMixin(PayloadParserMixin(PolymerElement))) {
-  static get template() {
+class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(LitElement))) {
+  static get styles() {
+    return [
+      formStyles,
+      css`:host {
+        display: block;
+      }
+
+      .form-item-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      form-data-editor-item {
+        flex: 1;
+      }
+
+      .option-pane {
+        margin: 8px 0;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+      `
+    ];
+  }
+
+  _formRowTemplate(item, index) {
+    const {
+      allowHideOptional,
+      optionalOpened,
+      allowDisableParams,
+      readOnly,
+      disabled,
+      legacy,
+      outlined,
+      narrow,
+      noDocs,
+      hasOptional
+    } = this;
+    const rowClass = this._computeItemClass(item, narrow, allowHideOptional, optionalOpened, allowDisableParams);
+    const isOptional = this.computeIsOptional(hasOptional, item);
+    return html`<div
+      class="${rowClass}"
+      ?data-optional="${isOptional}">
+
+      ${allowDisableParams ? html`
+      <anypoint-checkbox
+        class="enable-checkbox"
+        ?checked="${item.schema.enabled}"
+        data-index="${index}"
+        ?data-array="${item.schema.isArray}"
+        @checked-changed="${this._enableCheckedHandler}"
+        title="Enable or disable this parameter"
+        aria-label="Toggle to enable or disable this parameter"
+        ?disabled="${readOnly || disabled}"
+        ?outlined="${outlined}"
+        ?legacy="${legacy}"></anypoint-checkbox>` : undefined}
+
+      <form-data-editor-item
+        data-index="${index}"
+        .narrow="${narrow}"
+        .name="${item.name}"
+        .value="${item.value}"
+        .model="${item}"
+        .noDocs="${noDocs}"
+        .required="${item.required}"
+        .disabled="${disabled}"
+        .readOnly="${readOnly}"
+        ?outlined="${outlined}"
+        ?legacy="${legacy}"
+        .isCustom="${item.schema.isCustom}"
+        .isArray="${item.schema.isArray}"
+        @remove="${this._removeCustom}"
+        @value-changed="${this._valueChangeHanlder}"
+        @name-changed="${this._nameChangeHanlder}"></form-data-editor-item>
+    </div>`;
+  }
+
+  render() {
+    const {
+      renderOptionalCheckbox,
+      optionalOpened,
+      allowCustom,
+      readOnly,
+      disabled
+    } = this;
+    let { model } = this;
+    if (!model) {
+      model = [];
+    }
+
     return html`
-    <style include="api-form-styles">
-    :host {
-      display: block;
-      @apply --form-data-editor;
-    }
-
-    .form-item-row {
-      @apply --layout-horizontal;
-      @apply --layout-start;
-    }
-
-    form-data-editor-item {
-      @apply --layout-flex;
-    }
-
-    .option-pane {
-      margin: 8px 0;
-      @apply --layout-horizontal;
-      @apply --layout-center;
-      @apply --form-data-editor-encode-buttons;
-    }
-
-    .option-pane paper-checkbox {
-      margin-left: 12px;
-    }
-
-    .enable-checkbox {
-      margin-top: 32px;
-      margin-right: 8px;
-    }
-
-    .form-item-row.is-custom .enable-checkbox {
-      margin-top: 16px;
-    }
-
-    .form-item-row.is-narrow.is-custom paper-icon-button {
-      margin-top: 16px;
-    }
-
-    .form-item-row.is-narrow.is-custom paper-checkbox {
-      margin-top: 32px;
-    }
-    </style>
     <div class="option-pane">
-      <paper-button title="Encodes payload to x-www-form-urlencoded data"
-        on-click="_encodePaylod">Encode payload</paper-button>
-      <paper-button title="Decodes payload to human readable form"
-        on-click="_decodePaylod">Decode payload</paper-button>
-      <template is="dom-if" if="[[renderOptionalCheckbox]]">
-        <div class="optional-checkbox">
-          <paper-checkbox class="toggle-checkbox" checked="{{optionalOpened}}"
-            title="Shows or hides optional properties">Show optional properties</paper-checkbox>
-        </div>
-      </template>
+      <anypoint-button
+        title="Encodes payload to x-www-form-urlencoded data"
+        aria-label="Press to encode form values"
+        emphasis="medium"
+        @click="${this._encodePaylod}"
+        ?disabled="${readOnly || disabled}">
+        Encode payload
+      </anypoint-button>
+
+      <anypoint-button
+        title="Decodes payload to human readable form"
+        aria-label="Press to decode form values"
+        emphasis="medium"
+        @click="${this._decodePaylod}"
+        ?disabled="${readOnly || disabled}">
+        Decode payload
+      </anypoint-button>
     </div>
+
+    ${renderOptionalCheckbox ? html`<div class="optional-checkbox">
+      <anypoint-checkbox
+        class="toggle-checkbox"
+        .checked="${optionalOpened}"
+        @checked-changed="${this._optionalHanlder}"
+        title="Toggles optional parameters">
+        Show optional parameters
+      </anypoint-checkbox>
+    </div>` : undefined}
+
     <iron-form>
       <form enctype="application/json">
-        <template is="dom-repeat" items="{{model}}">
-          <div class\$="[[_computeItemClass(item, narrow, allowHideOptional, optionalOpened, allowDisableParams)]]"
-            data-optional\$="[[computeIsOptional(hasOptional, item)]]">
-            <template is="dom-if" if="[[allowDisableParams]]">
-              <paper-checkbox class="enable-checkbox" checked="{{item.schema.enabled}}"
-                title="Enable/disable this header"></paper-checkbox>
-            </template>
-            <form-data-editor-item narrow="[[narrow]]" name="{{item.name}}"
-              value="{{item.value}}" model="[[item]]" required\$="[[item.required]]"
-              is-custom="[[item.schema.isCustom]]" is-array="[[item.schema.isArray]]"
-              no-label-float="" on-remove="_removeCustom"></form-data-editor-item>
-          </div>
-        </template>
+        ${model.map((item, index) => this._formRowTemplate(item, index))}
       </form>
     </iron-form>
-    <template is="dom-if" if="[[allowCustom]]">
-      <div class="add-action">
-        <paper-button class="action-button" on-click="add" title="Adds empty parameter to the form">
-          <iron-icon class="action-icon" icon="arc:add-circle-outline" alt="Add parameter icon"></iron-icon>
-          Add parameter
-        </paper-button>
-      </div>
-    </template>
-`;
+
+    ${allowCustom ? html`<div class="add-action">
+      <anypoint-button
+        class="action-button"
+        @click="${this.add}"
+        title="Add new parameter"
+        aria-label="Press to create a new parameter"
+        ?disabled="${readOnly || disabled}">
+        <iron-icon
+          class="action-icon"
+          icon="arc:add-circle-outline"
+          alt="Add parameter icon"></iron-icon>
+        Add parameter
+      </anypoint-button>
+    </div>` : undefined}`;
   }
 
-  static get is() {
-    return 'form-data-editor';
-  }
   static get properties() {
     return {
-      value: {
-        type: String,
-        notify: true,
-        observer: '_valueChanged'
-      }
+      /**
+       * The editor value
+       */
+      value: { type: String },
+      /**
+       * Prohibits rendering of the documentation (the icon and the
+       * description).
+       */
+      noDocs: { type: Boolean },
+      /**
+       * Enables Anypoint legacy styling
+       */
+      legacy: { type: Boolean, reflect: true },
+      /**
+       * Enables Material Design outlined style
+       */
+      outlined: { type: Boolean },
+      /**
+       * When set the editor is in read only mode.
+       */
+      readOnly: { type: Boolean },
+      /**
+       * When set all controls are disabled in the form
+       */
+      disabled: { type: Boolean },
     };
   }
 
-  static get observers() {
-    return [
-      '_modelChanged(model.*)'
-    ];
+  get model() {
+    return this._model;
+  }
+
+  set model(value) {
+    if (this._sop('model', value)) {
+      this._notifyChanged('model', value);
+      this.renderEmptyMessage = this._computeRenderEmptyMessage(this.allowCustom, value);
+      this.hasOptional = this._computeHasOptionalParameters(this.allowHideOptional, value);
+      this._updateValue();
+    }
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  set value(value) {
+    if (this._sop('value', value)) {
+      this._notifyChanged('value', value);
+      this._valueChanged(value);
+    }
+  }
+  /**
+   * @return {Function} Previously registered handler for `model-changed` event
+   */
+  get onmodel() {
+    return this['_onmodel-changed'];
+  }
+  /**
+   * Registers a callback function for `model-changed` event
+   * @param {Function} value A callback to register. Pass `null` or `undefined`
+   * to clear the listener.
+   */
+  set onmodel(value) {
+    this._registerCallback('model-changed', value);
+  }
+  /**
+   * @return {Function} Previously registered handler for `value-changed` event
+   */
+  get onchange() {
+    return this['_onvalue-changed'];
+  }
+  /**
+   * Registers a callback function for `value-changed` event
+   * @param {Function} value A callback to register. Pass `null` or `undefined`
+   * to clear the listener.
+   */
+  set onchange(value) {
+    this._registerCallback('value-changed', value);
+  }
+  /**
+   * Registers an event handler for given type
+   * @param {String} eventType Event type (name)
+   * @param {Function} value The handler to register
+   */
+  _registerCallback(eventType, value) {
+    const key = `_on${eventType}`;
+    if (this[key]) {
+      this.removeEventListener(eventType, this[key]);
+    }
+    if (typeof value !== 'function') {
+      this[key] = null;
+      return;
+    }
+    this[key] = value;
+    this.addEventListener(eventType, value);
   }
   /**
    * Appends an empty header to the list.
@@ -225,42 +286,20 @@ class FormDataEditor extends
       inputLabel: 'Parameter value'
     });
   }
-
-  _modelChanged(record) {
-    if (!record || !record.path) {
-      return;
-    }
-    if (record.path === 'model.length') {
-      return;
-    }
-    this._updateValue(record.base);
-  }
-
-  /** Encode payload button press handler */
+  /**
+   * Encodes the payload
+   */
   _encodePaylod() {
     this.encodeUrlEncoded(this.model);
-    this.__postEncodeDecode();
+    this.requestUpdate();
   }
 
-  /** Decode payload button press handler */
+  /**
+   * Decodes the payload
+   */
   _decodePaylod() {
     this.decodeUrlEncoded(this.model);
-    this.__postEncodeDecode();
-  }
-  /**
-   * Notifies paths about a change in the model's name/value properties.
-   */
-  __postEncodeDecode() {
-    const model = this.model;
-    if (!model) {
-      return;
-    }
-    this.__internalChange = true;
-    for (let i = 0, len = model.length; i < len; i++) {
-      this.notifyPath(['model', i, 'name']);
-      this.notifyPath(['model', i, 'value']);
-    }
-    this.__internalChange = false;
+    this.requestUpdate();
   }
   /**
    * Computes for item class.
@@ -285,14 +324,13 @@ class FormDataEditor extends
   }
   /**
    * Updates the value when model changes.
-   *
-   * @param {Array} model Current model
    */
-  _updateValue(model) {
+  _updateValue() {
+    const { model } = this;
     const hasModel = !!(model && model.length);
     const value = hasModel ? this.formArrayToString(model) : '';
     this.__internalChange = true;
-    this.set('value', value);
+    this.value = value;
     this.__internalChange = false;
   }
   /**
@@ -325,5 +363,43 @@ class FormDataEditor extends
       value: value
     });
   }
+
+  _optionalHanlder(e) {
+    this.optionalOpened = e.detail.value;
+  }
+
+  _enableCheckedHandler(e) {
+    const index = Number(e.target.dataset.index);
+    /* istanbul ignore if  */
+    if (index !== index) {
+      return;
+    }
+    const { checked } = e.target;
+    // const old = this.model[index].schema.enabled;
+    this.model[index].schema.enabled = checked;
+    this._updateValue();
+  }
+
+  _valueChangeHanlder(e) {
+    const index = Number(e.target.dataset.index);
+    /* istanbul ignore if  */
+    if (index !== index) {
+      return;
+    }
+    const { value } = e.detail;
+    this.model[index].value = value;
+    this._updateValue();
+  }
+
+  _nameChangeHanlder(e) {
+    const index = Number(e.target.dataset.index);
+    /* istanbul ignore if  */
+    if (index !== index) {
+      return;
+    }
+    const { value } = e.detail;
+    this.model[index].name = value;
+    this._updateValue();
+  }
 }
-window.customElements.define(FormDataEditor.is, FormDataEditor);
+window.customElements.define('form-data-editor', FormDataEditor);
