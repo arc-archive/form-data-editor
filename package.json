@@ -1,24 +1,23 @@
 {
   "name": "@advanced-rest-client/form-data-editor",
-  "version": "2.0.1",
-  "license": "Apache-2.0",
   "description": "An element to edit form data (x-www-form-urlencoded)",
-  "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.5.1",
-    "@api-components/api-model-generator": "^0.1.5"
-  },
-  "private": false,
-  "main": "form-data-editor.html",
+  "version": "3.0.0",
+  "license": "Apache-2.0",
+  "main": "form-data-editor.js",
+  "keywords": [
+    "web-components",
+    "payload",
+    "payload editor",
+    "form data",
+    "www-url-form-encoded"
+  ],
   "authors": [
     "pawel Psztyc",
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
-  "scripts": {
-    "lint": "polymer lint form-data-editor.html form-data-editor-item.html",
-    "test-sauce": "polymer test --plugin sauce --job-name \"form-data-editor:local-test\"",
-    "test": "polymer test --plugin local",
-    "update-types": "gen-typescript-declarations --deleteExisting --outDir ."
-  },
+  "contributors": [
+    "The Advanced REST client authors <arc@mulesoft.com>"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/advanced-rest-client/form-data-editor.git"
@@ -26,5 +25,64 @@
   "bugs": {
     "url": "https://github.com/advanced-rest-client/form-data-editor/issues",
     "email": "arc@mulesoft.com"
+  },
+  "dependencies": {
+    "@advanced-rest-client/arc-icons": "^3.0.0",
+    "@advanced-rest-client/markdown-styles": "^3.1.0",
+    "@advanced-rest-client/payload-parser-mixin": "^3.0.0",
+    "@advanced-rest-client/arc-marked": "^1.0.2",
+    "@api-components/api-form-mixin": "^3.0.3",
+    "@api-components/api-property-form-item": "^3.0.5",
+    "@anypoint-web-components/validatable-mixin": "^1.0.1",
+    "@anypoint-web-components/anypoint-button": "^1.0.3",
+    "@anypoint-web-components/anypoint-checkbox": "^1.0.1",
+    "@anypoint-web-components/anypoint-input": "^0.1.2",
+    "@polymer/iron-form": "^3.0.0",
+    "lit-element": "^2.2.1"
+  },
+  "devDependencies": {
+    "@advanced-rest-client/arc-demo-helper": "^1.0.14",
+    "@advanced-rest-client/eslint-config": "^1.0.6",
+    "@advanced-rest-client/prettier-config": "^0.1.0",
+    "@advanced-rest-client/testing-karma-sl": "^1.0.3",
+    "@api-components/amf-helper-mixin": "^3.0.2",
+    "@api-components/api-model-generator": "^0.1.12",
+    "@api-components/api-navigation": "^3.0.3",
+    "@api-components/api-view-model-transformer": "^3.0.1",
+    "@commitlint/cli": "^8.1.0",
+    "@commitlint/config-conventional": "^7.0.0",
+    "@open-wc/testing": "^2.2.8",
+    "@open-wc/testing-karma": "^3.1.18",
+    "@polymer/gen-typescript-declarations": "^1.6.2",
+    "@polymer/iron-test-helpers": "^3.0.0",
+    "deepmerge": "^4.0.0",
+    "es-dev-server": "^1.12.0",
+    "husky": "^1.0.0",
+    "karma": "^4.2.0",
+    "lint-staged": "^9.2.1",
+    "sinon": "^7.4.1"
+  },
+  "scripts": {
+    "test": "karma start --coverage",
+    "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
+    "start": "es-dev-server --app-index demo/index.html --node-resolve --open --watch",
+    "start:compatibility": "es-dev-server --app-index demo/index.html --compatibility all --node-resolve --open --watch",
+    "lint:eslint": "eslint --ext .js,.html .",
+    "format:eslint": "eslint --ext .js,.html . --fix",
+    "lint:prettier": "prettier \"**/*.js\" --list-different || (echo '↑↑ these files are not prettier formatted ↑↑' && exit 1)",
+    "format:prettier": "prettier \"**/*.js\" --write",
+    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "format": "npm run format:eslint && npm run format:prettier",
+    "test:watch": "karma start --auto-watch=true --single-run=false",
+    "test:legacy": "karma start --legacy --coverage",
+    "test:legacy:watch": "karma start --legacy --auto-watch=true --single-run=false",
+    "test:sl": "karma start karma.sl.config.js --legacy --coverage",
+    "generate-model": "node demo/model.js"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }
