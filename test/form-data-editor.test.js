@@ -2,6 +2,7 @@ import {
   fixture,
   assert,
   nextFrame,
+  aTimeout,
   html
 } from '@open-wc/testing';
 import sinon from 'sinon/pkg/sinon-esm.js';
@@ -88,6 +89,24 @@ describe('<form-data-editor>', function() {
     `);
   }
 
+  describe('Initialization', () => {
+    it('can be created with document.createElement', () => {
+      const element = document.createElement('form-data-editor');
+      assert.ok(element);
+    });
+
+    it('adds form item when no model and custom allowed', async () => {
+      const element = await customFixture();
+      await nextFrame();
+      assert.lengthOf(element.model, 1);
+    });
+
+    it('does not add form item when no model and custom not allowed', async () => {
+      const element = await basicFixture();
+      assert.isUndefined(element.model);
+    });
+  });
+
   describe('Custom properties', () => {
     it('does not render add button by default', async () => {
       const element = await basicFixture();
@@ -105,7 +124,7 @@ describe('<form-data-editor>', function() {
       const element = await customFixture();
       const button = element.shadowRoot.querySelector('.add-action .action-button');
       MockInteractions.tap(button);
-      assert.lengthOf(element.model, 1);
+      assert.lengthOf(element.model, 2);
     });
   });
 
@@ -181,7 +200,7 @@ describe('<form-data-editor>', function() {
 
     it('Adds item to model', () => {
       element.add();
-      assert.lengthOf(element.model, 1);
+      assert.lengthOf(element.model, 2);
     });
 
     it('Added item has empty value', () => {
@@ -406,6 +425,29 @@ describe('<form-data-editor>', function() {
       }));
       await nextFrame();
       assert.equal(element.value, 'i1=v1&test-updated=v2&i3=v3');
+    });
+  });
+
+  describe('focusLast()', () => {
+    let element;
+    beforeEach(async () => {
+      element = await customFixture();
+    });
+
+    it('is called from add()', async () => {
+      const spy = sinon.spy(element, 'focusLast');
+      element.add();
+      await aTimeout();
+      assert.isTrue(spy.called);
+    });
+
+    it('calls focus() on the last item', async () => {
+      element.add();
+      await aTimeout();
+      const node = element.shadowRoot.querySelector('.form-item:last-child form-data-editor-item');
+      const spy = sinon.spy(node, 'focus');
+      element.focusLast();
+      assert.isTrue(spy.called);
     });
   });
 

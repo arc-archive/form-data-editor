@@ -89,9 +89,16 @@ declare namespace UiElements {
      */
     required: boolean|null|undefined;
     constructor();
+    connectedCallback(): void;
+    disconnectedCallback(): void;
     render(): any;
     _customTemplate(): any;
     _modelTemplate(model: any, hasDocs: any, noDocs: any): any;
+
+    /**
+     * Focuses on name input (custom value) or the value input (model value).
+     */
+    focus(): void;
 
     /**
      * Dispatches `remove` custom event that does not bubbles to inform the editor

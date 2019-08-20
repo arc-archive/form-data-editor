@@ -35,6 +35,7 @@ class FormDataEditorItem extends LitElement {
       formStyles,
       css`:host {
         display: block;
+        outline: none;
       }
 
       .custom-inputs,
@@ -241,6 +242,44 @@ class FormDataEditorItem extends LitElement {
       required: { type: Boolean }
     };
   }
+
+  constructor() {
+    super();
+    this.focus = this.focus.bind(this);
+  }
+
+  connectedCallback() {
+    if (super.connectedCallback) {
+      super.connectedCallback();
+    }
+    this.addEventListener('focus', this.focus);
+    this.setAttribute('tabindex', '0');
+  }
+
+  disconnectedCallback() {
+    if (super.disconnectedCallback) {
+      super.disconnectedCallback();
+    }
+    this.removeEventListener('focus', this.focus);
+  }
+  /**
+   * Focuses on name input (custom value) or the value input (model value).
+   */
+  focus() {
+    let node;
+    if (this.isCustom) {
+      node = this.shadowRoot.querySelector('.param-name');
+      if (node) {
+        node = node.inputElement;
+      }
+    } else {
+      node = this.shadowRoot.querySelector('api-property-form-item');
+    }
+    if (node) {
+      node.focus();
+    }
+  }
+
   /**
    * Dispatches `remove` custom event that does not bubbles to inform the editor
    * to delete this parameter.

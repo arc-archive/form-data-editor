@@ -123,13 +123,29 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
     if (!model) {
       model = [];
     }
-
+    const encButtonsEmphasis = allowCustom ? 'low' : 'medium';
     return html`
     <div class="option-pane">
+      ${allowCustom ? html`<div class="add-action">
+        <anypoint-button
+          class="action-button"
+          emphasis="medium"
+          @click="${this.add}"
+          title="Add new parameter"
+          aria-label="Press to create a new parameter"
+          ?disabled="${readOnly || disabled}">
+          <iron-icon
+            class="action-icon"
+            icon="arc:add-circle-outline"
+            alt="Add parameter icon"></iron-icon>
+          Add parameter
+        </anypoint-button>
+      </div>` : undefined}
+
       <anypoint-button
         title="Encodes payload to x-www-form-urlencoded data"
         aria-label="Press to encode form values"
-        emphasis="medium"
+        emphasis="${encButtonsEmphasis}"
         @click="${this._encodePaylod}"
         ?disabled="${readOnly || disabled}">
         Encode payload
@@ -138,11 +154,13 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
       <anypoint-button
         title="Decodes payload to human readable form"
         aria-label="Press to decode form values"
-        emphasis="medium"
+        emphasis="${encButtonsEmphasis}"
         @click="${this._decodePaylod}"
         ?disabled="${readOnly || disabled}">
         Decode payload
       </anypoint-button>
+
+      <slot name="content-action"></slot>
     </div>
 
     ${renderOptionalCheckbox ? html`<div class="optional-checkbox">
@@ -161,8 +179,11 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
       </form>
     </iron-form>
 
-    ${allowCustom ? html`<div class="add-action">
-      <anypoint-button
+    ${model.length === 0 && !allowCustom ?
+      html`<p>This endpoint does not declare body properties</p>` : ''}
+
+    ${model.length !== 0 && allowCustom ?
+      html`<anypoint-button
         class="action-button"
         @click="${this.add}"
         title="Add new parameter"
@@ -172,9 +193,9 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
           class="action-icon"
           icon="arc:add-circle-outline"
           alt="Add parameter icon"></iron-icon>
-        Add parameter
-      </anypoint-button>
-    </div>` : undefined}`;
+        Add next
+      </anypoint-button>` : ''}
+    `;
   }
 
   static get properties() {
@@ -275,6 +296,12 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
     this[key] = value;
     this.addEventListener(eventType, value);
   }
+
+  firstUpdated() {
+    if (!this.model || !this.model.length) {
+      this.add();
+    }
+  }
   /**
    * Appends an empty header to the list.
    */
@@ -285,6 +312,17 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
     this.addCustom('query', {
       inputLabel: 'Parameter value'
     });
+
+    setTimeout(() => this.focusLast());
+  }
+  /**
+   * Focuses on last added item.
+   */
+  focusLast() {
+    const node = this.shadowRoot.querySelector('.form-item:last-child form-data-editor-item');
+    if (node) {
+      node.focus();
+    }
   }
   /**
    * Encodes the payload

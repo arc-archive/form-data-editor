@@ -74,11 +74,17 @@ declare namespace UiElements {
      * @param value The handler to register
      */
     _registerCallback(eventType: String|null, value: Function|null): void;
+    firstUpdated(): void;
 
     /**
      * Appends an empty header to the list.
      */
     add(): void;
+
+    /**
+     * Focuses on last added item.
+     */
+    focusLast(): void;
 
     /**
      * Encodes the payload
