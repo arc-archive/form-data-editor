@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/form-data-editor",
   "description": "An element to edit form data (x-www-form-urlencoded)",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "license": "Apache-2.0",
   "main": "form-data-editor.js",
   "keywords": [
