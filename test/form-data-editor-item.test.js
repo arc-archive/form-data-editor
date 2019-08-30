@@ -4,7 +4,7 @@ import {
   nextFrame,
   html
 } from '@open-wc/testing';
-import sinon from 'sinon/pkg/sinon-esm.js';
+import * as sinon from 'sinon/pkg/sinon-esm.js';
 import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
 import '../form-data-editor-item.js';
 
@@ -316,6 +316,21 @@ describe('<form-data-editor-item>', function() {
     it('is accessible with custom values', async () => {
       const element = await customItemFixture();
       await assert.isAccessible(element);
+    });
+  });
+
+  describe('compatibility mode', () => {
+    it('sets compatibility on item when setting legacy', async () => {
+      const element = await basicFixture();
+      element.legacy = true;
+      assert.isTrue(element.legacy, 'legacy is set');
+      assert.isTrue(element.compatibility, 'compatibility is set');
+    });
+
+    it('returns compatibility value from item when getting legacy', async () => {
+      const element = await basicFixture();
+      element.compatibility = true;
+      assert.isTrue(element.legacy, 'legacy is set');
     });
   });
 });

@@ -66,7 +66,7 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
       allowDisableParams,
       readOnly,
       disabled,
-      legacy,
+      compatibility,
       outlined,
       narrow,
       noDocs,
@@ -89,7 +89,7 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
         aria-label="Toggle to enable or disable this parameter"
         ?disabled="${readOnly || disabled}"
         ?outlined="${outlined}"
-        ?legacy="${legacy}"></anypoint-checkbox>` : undefined}
+        ?compatibility="${compatibility}"></anypoint-checkbox>` : undefined}
 
       <form-data-editor-item
         data-index="${index}"
@@ -102,7 +102,7 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
         .disabled="${disabled}"
         .readOnly="${readOnly}"
         ?outlined="${outlined}"
-        ?legacy="${legacy}"
+        ?compatibility="${compatibility}"
         .isCustom="${item.schema.isCustom}"
         .isArray="${item.schema.isArray}"
         @remove="${this._removeCustom}"
@@ -210,9 +210,13 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
        */
       noDocs: { type: Boolean },
       /**
-       * Enables Anypoint legacy styling
+       * Enables compatibility with Anypoint components.
        */
-      legacy: { type: Boolean, reflect: true },
+      compatibility: { type: Boolean, reflect: true },
+      /**
+       * @deprecated Use `compatibility` instead
+       */
+      legacy: { type: Boolean },
       /**
        * Enables Material Design outlined style
        */
@@ -226,6 +230,14 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
        */
       disabled: { type: Boolean },
     };
+  }
+
+  get legacy() {
+    return this.compatibility;
+  }
+
+  set legacy(value) {
+    this.compatibility = value;
   }
 
   get model() {

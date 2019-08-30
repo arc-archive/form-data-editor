@@ -76,7 +76,7 @@ class FormDataEditorItem extends LitElement {
       value,
       readOnly,
       disabled,
-      legacy,
+      compatibility,
       outlined
     } = this;
     return html`<div class="custom-inputs">
@@ -89,7 +89,7 @@ class FormDataEditorItem extends LitElement {
         required
         autovalidate
         ?outlined="${outlined}"
-        ?legacy="${legacy}"
+        ?compatibility="${compatibility}"
         .readOnly="${readOnly}"
         .disabled=${disabled}>
         <label slot="label">Parameter name</label>
@@ -102,7 +102,7 @@ class FormDataEditorItem extends LitElement {
         class="param-value"
         type="text"
         ?outlined="${outlined}"
-        ?legacy="${legacy}"
+        ?compatibility="${compatibility}"
         .readOnly="${readOnly}"
         .disabled=${disabled}>
         <label slot="label">Parameter value</label>
@@ -117,7 +117,7 @@ class FormDataEditorItem extends LitElement {
       slot="suffix"
       ?disabled="${readOnly || disabled}"
       ?outlined="${outlined}"
-      ?legacy="${legacy}">
+      ?compatibility="${compatibility}">
       <iron-icon icon="arc:remove-circle-outline"></iron-icon>
     </anypoint-icon-button>`;
   }
@@ -128,7 +128,7 @@ class FormDataEditorItem extends LitElement {
       value,
       readOnly,
       disabled,
-      legacy,
+      compatibility,
       outlined,
       narrow,
       required
@@ -146,14 +146,14 @@ class FormDataEditorItem extends LitElement {
         ?narrow="${narrow}"
         .noDocs="${noDocs}"
         ?outlined="${outlined}"
-        ?legacy="${legacy}"
+        ?compatibility="${compatibility}"
         ></api-property-form-item>
       ${hasDocs ? html`<anypoint-icon-button
         class="hint-icon"
         title="Toggle documentation"
         aria-label="Press to toggle documentation for this property"
         ?outlined="${outlined}"
-        ?legacy="${legacy}"
+        ?compatibility="${compatibility}"
         ?disabled="${disabled}"
         @click="${this._toggleItemDocs}">
         <iron-icon icon="arc:help"></iron-icon>
@@ -221,9 +221,13 @@ class FormDataEditorItem extends LitElement {
        */
       noDocs: { type: Boolean },
       /**
-       * Enables Anypoint legacy styling
+       * Enables compatibility with Anypoint components.
        */
-      legacy: { type: Boolean, reflect: true },
+      compatibility: { type: Boolean, reflect: true },
+      /**
+       * @deprecated Use `compatibility` instead
+       */
+      legacy: { type: Boolean },
       /**
        * Enables Material Design outlined style
        */
@@ -241,6 +245,14 @@ class FormDataEditorItem extends LitElement {
        */
       required: { type: Boolean }
     };
+  }
+
+  get legacy() {
+    return this.compatibility;
+  }
+
+  set legacy(value) {
+    this.compatibility = value;
   }
 
   constructor() {
