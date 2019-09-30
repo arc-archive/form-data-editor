@@ -245,7 +245,7 @@ describe('<form-data-editor-item>', function() {
     });
 
     it('renders description after hint icon click', async () => {
-      const button = element.shadowRoot.querySelector('.hint-icon iron-icon');
+      const button = element.shadowRoot.querySelector('.hint-icon .icon');
       MockInteractions.tap(button);
       await nextFrame();
       const node = element.shadowRoot.querySelector('.docs');

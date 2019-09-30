@@ -14,7 +14,7 @@ the License.
 import { html, css, LitElement } from 'lit-element';
 import markdownStyles from '@advanced-rest-client/markdown-styles/markdown-styles.js';
 import formStyles from '@api-components/api-form-mixin/api-form-styles.js';
-import '@advanced-rest-client/arc-icons/arc-icons.js';
+import { help, removeCircleOutline } from '@advanced-rest-client/arc-icons/ArcIcons.js';
 import '@anypoint-web-components/anypoint-input/anypoint-input.js';
 import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
 import '@advanced-rest-client/arc-marked/arc-marked.js';
@@ -66,6 +66,13 @@ class FormDataEditorItem extends LitElement {
 
       [hidden] {
         display: none !important;
+      }
+
+      .icon {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        fill: currentColor;
       }`
     ];
   }
@@ -117,8 +124,9 @@ class FormDataEditorItem extends LitElement {
       slot="suffix"
       ?disabled="${readOnly || disabled}"
       ?outlined="${outlined}"
-      ?compatibility="${compatibility}">
-      <iron-icon icon="arc:remove-circle-outline"></iron-icon>
+      ?compatibility="${compatibility}"
+    >
+      <span class="icon">${removeCircleOutline}</span>
     </anypoint-icon-button>`;
   }
 
@@ -155,8 +163,9 @@ class FormDataEditorItem extends LitElement {
         ?outlined="${outlined}"
         ?compatibility="${compatibility}"
         ?disabled="${disabled}"
-        @click="${this._toggleItemDocs}">
-        <iron-icon icon="arc:help"></iron-icon>
+        @click="${this._toggleItemDocs}"
+      >
+        <span class="icon">${help}</span>
       </anypoint-icon-button>` : undefined}
     </div>`;
   }
