@@ -177,7 +177,7 @@ class FormDataEditorItem extends LitElement {
       ${isCustom ? this._customTemplate() : this._modelTemplate(model, hasDocs, noDocs)}
     </div>
     ${renderDocs ? html`<div class="docs">
-      <arc-marked .markdown="${this._computeDocumentation(model)}">
+      <arc-marked .markdown="${this._computeDocumentation(model)}" sanitize>
         <div slot="markdown-html" class="markdown-body"></div>
       </arc-marked>
     </div>` : undefined}`;
