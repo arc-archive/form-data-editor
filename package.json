@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/form-data-editor",
   "description": "An element to edit form data (x-www-form-urlencoded)",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "license": "Apache-2.0",
   "main": "form-data-editor.js",
   "keywords": [
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@advanced-rest-client/arc-icons": "^3.0.2",
-    "@advanced-rest-client/arc-marked": "^1.0.3",
+    "@advanced-rest-client/arc-marked": "^1.0.4",
     "@advanced-rest-client/markdown-styles": "^3.1.0",
     "@advanced-rest-client/payload-parser-mixin": "^3.0.0",
     "@anypoint-web-components/anypoint-button": "^1.0.11",
@@ -59,7 +59,7 @@
     "es-dev-server": "^1.18.3",
     "husky": "^1.0.0",
     "karma": "^4.3.0",
-    "lint-staged": "^9.4.0",
+    "lint-staged": "^9.4.1",
     "sinon": "^7.5.0"
   },
   "scripts": {
