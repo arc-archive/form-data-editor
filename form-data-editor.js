@@ -57,6 +57,10 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
         align-items: center;
       }
 
+      .option-pane > *{
+        margin-bottom: 0.30em;
+      }
+
       .icon {
         display: inline-block;
         width: 24px;
