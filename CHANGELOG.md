@@ -144,3 +144,7 @@
 
 
 
+## [3.0.5](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.4...3.0.5) (2019-10-30)
+
+
+
