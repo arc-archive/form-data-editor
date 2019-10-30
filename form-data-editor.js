@@ -50,10 +50,15 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
       }
 
       .option-pane {
+        flex-wrap: wrap;
         margin: 8px 0;
         display: flex;
         flex-direction: row;
         align-items: center;
+      }
+
+      .option-pane > * {
+        margin-bottom: 0.30em;
       }
 
       .icon {
