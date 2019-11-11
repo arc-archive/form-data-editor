@@ -129,7 +129,8 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
       optionalOpened,
       allowCustom,
       readOnly,
-      disabled
+      disabled,
+      compatibility
     } = this;
     let { model } = this;
     if (!model) {
@@ -146,6 +147,7 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
           title="Add new parameter"
           aria-label="Press to create a new parameter"
           ?disabled="${readOnly || disabled}"
+          ?compatibility="${compatibility}"
         >
           <span class="icon action-icon">${addCircleOutline}</span>
           Add parameter
@@ -157,6 +159,7 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
         aria-label="Press to encode form values"
         emphasis="${encButtonsEmphasis}"
         @click="${this._encodePaylod}"
+        ?compatibility="${compatibility}"
         ?disabled="${readOnly || disabled}">
         Encode payload
       </anypoint-button>
@@ -166,6 +169,7 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
         aria-label="Press to decode form values"
         emphasis="${encButtonsEmphasis}"
         @click="${this._decodePaylod}"
+        ?compatibility="${compatibility}"
         ?disabled="${readOnly || disabled}">
         Decode payload
       </anypoint-button>
@@ -199,6 +203,7 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
         title="Add new parameter"
         aria-label="Press to create a new parameter"
         ?disabled="${readOnly || disabled}"
+        ?compatibility="${compatibility}"
       >
         <span class="icon action-icon">${addCircleOutline}</span>
         Add next

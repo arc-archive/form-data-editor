@@ -215,6 +215,13 @@ class ApiDemo extends ApiDemoPageBase {
               >No docs</anypoint-checkbox
             >
             <anypoint-checkbox
+            aria-describedby="mainOptionsLabel"
+            slot="options"
+            name="demoCompatibility"
+            @change="${this._toggleMainOption}"
+            >Compatibility</anypoint-checkbox
+          >
+            <anypoint-checkbox
               aria-describedby="mainOptionsLabel"
               slot="options"
               name="allowCustom"
