@@ -148,3 +148,12 @@
 
 
 
+## [3.0.6](https://github.com/advanced-rest-client/form-data-editor/compare/0.2.4...3.0.6) (2019-11-11)
+
+
+### Bug Fixes
+
+* fix compatibility issues with anypoint-buttons [bump-version] ([cea2b62](https://github.com/advanced-rest-client/form-data-editor/commit/cea2b623308be5890345c4093a102da4e67e8fd6))
+
+
+
