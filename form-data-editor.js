@@ -32,7 +32,7 @@ import './form-data-editor-item.js';
  * @memberof UiElements
  */
 class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(LitElement))) {
-  static get styles() {
+  get styles() {
     return [
       formStyles,
       css`:host {
@@ -137,7 +137,7 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
       model = [];
     }
     const encButtonsEmphasis = allowCustom ? 'low' : 'medium';
-    return html`
+    return html`<style>${this.styles}</style>
     <div class="option-pane">
       ${allowCustom ? html`<div class="add-action">
         <anypoint-button
