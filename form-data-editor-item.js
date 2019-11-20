@@ -29,7 +29,7 @@ import '@api-components/api-property-form-item/api-property-form-item.js';
  * @memberof UiElements
  */
 class FormDataEditorItem extends LitElement {
-  static get styles() {
+  get styles() {
     return [
       markdownStyles,
       formStyles,
@@ -181,7 +181,7 @@ class FormDataEditorItem extends LitElement {
     const hasDocs = this._computeHasDocumentation(noDocs, model);
     const renderDocs = !noDocs && hasDocs && !!docsOpened;
 
-    return html`
+    return html`<style>${this.styles}</style>
     <div class="form-item${narrow ? ' narrow' : ''}">
       ${isCustom ? this._customTemplate() : this._modelTemplate(model, hasDocs, noDocs)}
     </div>
