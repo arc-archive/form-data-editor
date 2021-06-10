@@ -1,6 +1,6 @@
 [![Published on NPM](https://img.shields.io/npm/v/@advanced-rest-client/form-data-editor.svg)](https://www.npmjs.com/package/@advanced-rest-client/form-data-editor)
 
-[![Build Status](https://travis-ci.org/advanced-rest-client/form-data-editor.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/form-data-editor)
+[![Tests and publishing](https://github.com/advanced-rest-client/form-data-editor/actions/workflows/deployment.yml/badge.svg)](https://github.com/advanced-rest-client/form-data-editor/actions/workflows/deployment.yml)
 
 ## &lt;form-data-editor&gt;
 

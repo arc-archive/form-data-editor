@@ -19,7 +19,7 @@ import formStyles from '@api-components/api-form-mixin/api-form-styles.js';
 import { addCircleOutline } from  '@advanced-rest-client/arc-icons/ArcIcons.js';
 import '@polymer/iron-form/iron-form.js';
 import '@anypoint-web-components/anypoint-button/anypoint-button.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
+import '@anypoint-web-components/anypoint-switch/anypoint-switch.js';
 import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
 import './form-data-editor-item.js';
 /**
@@ -178,13 +178,13 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
     </div>
 
     ${renderOptionalCheckbox ? html`<div class="optional-checkbox">
-      <anypoint-checkbox
+      <anypoint-switch
         class="toggle-checkbox"
         .checked="${optionalOpened}"
-        @checked-changed="${this._optionalHanlder}"
+        @change="${this._optionalHandler}"
         title="Toggles optional parameters">
         Show optional parameters
-      </anypoint-checkbox>
+      </anypoint-switch>
     </div>` : undefined}
 
     <iron-form>
@@ -427,8 +427,8 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
     });
   }
 
-  _optionalHanlder(e) {
-    this.optionalOpened = e.detail.value;
+  _optionalHandler(e) {
+    this.optionalOpened = e.target.checked;
   }
 
   _enableCheckedHandler(e) {
