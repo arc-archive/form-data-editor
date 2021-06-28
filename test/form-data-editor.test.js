@@ -241,6 +241,13 @@ describe('<form-data-editor>', function() {
       await nextFrame();
       assert.equal(element.model[0].name, 'x+test');
     });
+
+    it('Disables encode button after encoding', async () => {
+      element._encodePaylod();
+      await nextFrame();
+      assert.isFalse(element._decoded);
+      assert.isTrue(element._encoded);
+    });
   });
 
   describe('_decodePaylod()', () => {
@@ -269,6 +276,13 @@ describe('<form-data-editor>', function() {
       element._decodePaylod();
       await nextFrame();
       assert.equal(element.model[0].name, 'x test');
+    });
+
+    it('Disables decode button after decoding', async () => {
+      element._decodePaylod();
+      await nextFrame();
+      assert.isTrue(element._decoded);
+      assert.isFalse(element._encoded);
     });
   });
 
