@@ -130,7 +130,9 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
       allowCustom,
       readOnly,
       disabled,
-      compatibility
+      compatibility,
+      _encoded,
+      _decoded
     } = this;
     let { model } = this;
     if (!model) {
@@ -160,7 +162,7 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
         emphasis="${encButtonsEmphasis}"
         @click="${this._encodePaylod}"
         ?compatibility="${compatibility}"
-        ?disabled="${readOnly || disabled}">
+        ?disabled="${readOnly || disabled || _encoded}">
         Encode payload
       </anypoint-button>
 
@@ -170,7 +172,7 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
         emphasis="${encButtonsEmphasis}"
         @click="${this._decodePaylod}"
         ?compatibility="${compatibility}"
-        ?disabled="${readOnly || disabled}">
+        ?disabled="${readOnly || disabled || _decoded}">
         Decode payload
       </anypoint-button>
 
@@ -243,6 +245,12 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
        */
       disabled: { type: Boolean },
     };
+  }
+
+  constructor() {
+    super();
+    this._encoded = false;
+    this._decoded = true;
   }
 
   get legacy() {
@@ -355,6 +363,8 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
   _encodePaylod() {
     this.encodeUrlEncoded(this.model);
     this.requestUpdate();
+    this._encoded = true;
+    this._decoded = false;
   }
 
   /**
@@ -363,6 +373,8 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
   _decodePaylod() {
     this.decodeUrlEncoded(this.model);
     this.requestUpdate();
+    this._decoded = true;
+    this._encoded = false;
   }
   /**
    * Computes for item class.
