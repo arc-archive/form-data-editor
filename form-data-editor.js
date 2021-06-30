@@ -247,6 +247,12 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
     };
   }
 
+  constructor() {
+    super();
+    this._encoded = false;
+    this._decoded = true;
+  }
+
   get legacy() {
     return this.compatibility;
   }
