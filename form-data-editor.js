@@ -365,6 +365,10 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
     this.requestUpdate();
     this._encoded = true;
     this._decoded = false;
+    const node = this.shadowRoot.querySelector('.encode-button');
+    if (node) {
+      node.blur();
+    }
   }
 
   /**
@@ -375,6 +379,10 @@ class FormDataEditor extends PayloadParserMixin(ValidatableMixin(ApiFormMixin(Li
     this.requestUpdate();
     this._decoded = true;
     this._encoded = false;
+    const node = this.shadowRoot.querySelector('.decode-button');
+    if (node) {
+      node.blur();
+    }
   }
   /**
    * Computes for item class.
